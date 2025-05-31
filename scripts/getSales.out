@@ -1,0 +1,65 @@
+
+R version 4.4.0 (2024-04-24) -- "Puppy Cup"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # getSales.R
+> # grab transaction data for metro Vancouver
+> # Tom Davidoff
+> # 05/30/25
+> 
+> library(data.table)
+> 
+> df <- fread("~/OneDrive\ -\ UBC/Documents/data/bca/data_advice_REVD25_20250331/bca_folio_sales_20250331_REVD25.csv",select=c("FOLIO_ID","CONVEYANCE_DATE","CONVEYANCE_TYPE_DESCRIPTION","CONVEYANCE_PRICE"))
+> df[,CONVEYANCE_DATE := as.Date(substring(CONVEYANCE_DATE,1,8),format="%Y%m%d")]
+> print(table(df[,CONVEYANCE_TYPE_DESCRIPTION]))
+
+    Improved Single Property Transaction 
+                                 3273523 
+           Multiple Property Transaction 
+                                   76875 
+Reject - Not Suitable for Sales Analysis 
+                                  980235 
+      Vacant Single Property Transaction 
+                                  327470 
+> df <- df[CONVEYANCE_TYPE_DESCRIPTION=="Improved Single Property Transaction"]
+> MINDATE <- as.Date("2023-01-01")
+> MAXDATE <- as.Date("2024-12-31")
+> df <- df[CONVEYANCE_DATE >= MINDATE & CONVEYANCE_DATE <= MAXDATE]
+> print(summary(df))
+   FOLIO_ID         CONVEYANCE_DATE      CONVEYANCE_TYPE_DESCRIPTION
+ Length:180479      Min.   :2023-01-03   Length:180479              
+ Class :character   1st Qu.:2023-07-17   Class :character           
+ Mode  :character   Median :2024-01-04   Mode  :character           
+                    Mean   :2024-01-11                              
+                    3rd Qu.:2024-07-15                              
+                    Max.   :2024-12-31                              
+                                                                    
+ CONVEYANCE_PRICE   
+ Min.   :        0  
+ 1st Qu.:   535000  
+ Median :   754900  
+ Mean   :  1005027  
+ 3rd Qu.:  1150000  
+ Max.   :855000000  
+ NA's   :38         
+> fwrite(df,"data/derived/sales.csv",row.names=FALSE)
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 14.233   0.343  15.711 

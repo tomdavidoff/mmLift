@@ -1,0 +1,108 @@
+
+R version 4.5.0 (2025-04-11) -- "How About a Twenty-Six"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # getGeo.R
+> # R to get postal code 
+> # Tom Davidoff
+> # 05/30/25
+> 
+> library(data.table)
+> library(RSQLite)
+> library(sf)
+Linking to GEOS 3.13.0, GDAL 3.8.5, PROJ 9.5.1; sf_use_s2() is TRUE
+> 
+> # connect to file foo.db
+> df <- dbConnect(SQLite(), dbname = "~/OneDrive - UBC/Documents/data/bca/bca_folios.gpkg.gpkg")
+> # read the following table with sf
+> # WHSE_HUMAN_CULTURAL_ECONOMIC_BCA_FOLIO_ADDRESSES_SV
+> # and print the first 10 rows
+> # get the data from the database, select only two columns, folioid and geom
+> 
+> dg <- sf::st_read(df, query = "SELECT FOLIO_ID, geom FROM WHSE_HUMAN_CULTURAL_ECONOMIC_BCA_FOLIO_ADDRESSES_SV")
+> print(dg[1:10, ])
+Simple feature collection with 10 features and 1 field
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 1203246 ymin: 475498.3 xmax: 1204041 ymax: 475605.4
+CRS:           NA
+     FOLIO_ID                           geom
+1  A00000033H POLYGON ((1204012 475510.6,...
+2  A00000033J POLYGON ((1204000 475604.8,...
+3  A00000033P POLYGON ((1204030 475605.3,...
+4  A00000033R POLYGON ((1204030 475605.3,...
+5  A0000002ZU POLYGON ((1203247 475498.3,...
+6  A0000002ZX POLYGON ((1203266 475555.9,...
+7  A0000002ZY POLYGON ((1203286 475536.1,...
+8  A000000303 POLYGON ((1203307 475499.3,...
+9  A000000305 POLYGON ((1203326 475536.7,...
+10 A00000030A POLYGON ((1203357 475500.1,...
+> 
+> # convert to standard lat_lon
+> # set the crs to 3005
+> # and then transform to WGS84 (4326)
+> # assuming the original CRS is 3005
+> 
+> dg <- st_set_crs(dg, 3005) # set the CRS to 3005
+> dg <- st_transform(dg, crs = 4326) # assuming the original CRS is 3005
+> print(dg[1:20, ])
+Simple feature collection with 20 features and 1 field
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: -123.2097 ymin: 49.25961 xmax: -123.1987 ymax: 49.26062
+Geodetic CRS:  WGS 84
+First 10 features:
+     FOLIO_ID                           geom
+1  A00000033H POLYGON ((-123.1992 49.2596...
+2  A00000033J POLYGON ((-123.1993 49.2604...
+3  A00000033P POLYGON ((-123.1989 49.2604...
+4  A00000033R POLYGON ((-123.1989 49.2604...
+5  A0000002ZU POLYGON ((-123.2097 49.2597...
+6  A0000002ZX POLYGON ((-123.2094 49.2602...
+7  A0000002ZY POLYGON ((-123.2091 49.2601...
+8  A000000303 POLYGON ((-123.2088 49.2597...
+9  A000000305 POLYGON ((-123.2085 49.2600...
+10 A00000030A POLYGON ((-123.2081 49.2597...
+> # get centroids of geometry and create a data.table with the folioid and the centroid coordinates of the geom variable
+> centroids <- st_centroid(st_make_valid(dg))
+Warning message:
+st_centroid assumes attributes are constant over geometries 
+> centroids_dt <- data.table(
++   FOLIO_ID = centroids$FOLIO_ID,
++   lon = st_coordinates(centroids)[, 1],
++   lat = st_coordinates(centroids)[, 2]
++ )
+> print(centroids_dt[1:10, ])
+      FOLIO_ID       lon      lat
+        <char>     <num>    <num>
+ 1: A00000033H -123.1991 49.25978
+ 2: A00000033J -123.1992 49.26030
+ 3: A00000033P -123.1989 49.26029
+ 4: A00000033R -123.1988 49.26029
+ 5: A0000002ZU -123.2096 49.25994
+ 6: A0000002ZX -123.2094 49.26045
+ 7: A0000002ZY -123.2090 49.25993
+ 8: A000000303 -123.2088 49.25993
+ 9: A000000305 -123.2086 49.25993
+10: A00000030A -123.2082 49.25992
+> 
+> fwrite(centroids_dt, "data/derived/folioCentroids.csv")
+> q("no")
+> proc.time()
+   user  system elapsed 
+165.342   5.981 174.848 

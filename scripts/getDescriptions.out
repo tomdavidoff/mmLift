@@ -1,6 +1,6 @@
 
-R version 4.4.0 (2024-04-24) -- "Puppy Cup"
-Copyright (C) 2024 The R Foundation for Statistical Computing
+R version 4.5.0 (2025-04-11) -- "How About a Twenty-Six"
+Copyright (C) 2025 The R Foundation for Statistical Computing
 Platform: aarch64-apple-darwin20
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -24,13 +24,404 @@ Type 'q()' to quit R.
 > 
 > library(data.table)
 > 
-> df <- fread("~/OneDrive\ -\ UBC/Documents/data/bca/data_advice_REVD24_20240331/bca_folio_descriptions_20240331_REVD24.csv",select=c("ACTUAL_USE_DESCRIPTION","ROLL_NUMBER","FOLIO_ID","JURISDICTION_CODE","JURISDICTION","LAND_WIDTH","LAND_SIZE","LAND_DEPTH","NEIGHBOURHOOD","REGIONAL_DISTRICT","TENURE_DESCRIPTION"))
+> df <- fread("~/OneDrive\ -\ UBC/Documents/data/bca/data_advice_REVD24_20240331/bca_folio_descriptions_20240331_REVD24.csv",select=c("ACTUAL_USE_DESCRIPTION","FOLIO_ID","JURISDICTION_CODE","JURISDICTION","ROLL_NUMBER","LAND_WIDTH","LAND_SIZE","LAND_DEPTH","NEIGHBOURHOOD","REGIONAL_DISTRICT","TENURE_DESCRIPTION"))
 > 
 > df <- df[REGIONAL_DISTRICT=="Metro Vancouver"]
-> df <- df[ACTUAL_USE_DESCRIPTION %in% c("Single Family Dwelling","Residential Dwelling with Suite")]
+> print(table(df[,ACTUAL_USE_DESCRIPTION]))
+
+                        2 Acres Or More (Manufactured Home) 
+                                                         80 
+                              2 Acres Or More (Outbuilding) 
+                                                        116 
+                        2 Acres Or More (Seasonal Dwelling) 
+                                                         60 
+           2 Acres Or More (Single Family Dwelling, Duplex) 
+                                                       5808 
+                                   2 Acres Or More (Vacant) 
+                                                       1636 
+                                            Air Space Title 
+                                                         74 
+                                  Airports, Heliports, Etc. 
+                                                         80 
+                                                       Alrt 
+                                                         95 
+                                             Alrt/Mixed Use 
+                                                          5 
+                                             Asphalt Plants 
+                                                          8 
+                                      Automobile Dealership 
+                                                        167 
+                       Automobile Paint Shop, Garages, Etc. 
+                                                        677 
+                                     Automobile Sales (Lot) 
+                                                         78 
+                             Bakery & Biscuit Manufacturing 
+                                                          7 
+                                                       Bank 
+                                                        161 
+                  Bed & Breakfast Operation 4 Or More Units 
+                                                         12 
+                Bed & Breakfast Operation Less Than 4 Units 
+                                                         70 
+                                                       Beef 
+                                                        444 
+                                              Beef (Vacant) 
+                                                         24 
+                                                    Big Box 
+                                                         92 
+                                              Bowling Alley 
+                                                          8 
+                                                    Brewery 
+                                                          4 
+                      Bus Company, Including Street Railway 
+                                                         69 
+                                    Campground (Commercial) 
+                                                         16 
+       Campgrounds (Includes Government Campgrounds, Ymca & 
+                                                         17 
+                                                   Car Wash 
+                                                         36 
+                                              Cement Plants 
+                                                          7 
+                   Cemeteries (Includes Public Or Private). 
+                                                         64 
+                    Chemical & Chemical Products Industries 
+                                                         11 
+                                   Churches & Bible Schools 
+                                                        842 
+               Civic, Institutional & Recreational (Vacant) 
+                                                       7952 
+                                          Clothing Industry 
+                                                         23 
+                                      Commercial Strata-Lot 
+                                                      24539 
+                 Community Antenna Television (Cablevision) 
+                                                         45 
+                                     Concrete Mixing Plants 
+                                                         22 
+             Confectionery Manufacturing & Sugar Processing 
+                                                          2 
+                          Convenience Store/Service Station 
+                                                        198 
+                                                      Dairy 
+                                                        180 
+                                             Dairy (Vacant) 
+                                                         33 
+                                             Dairy Products 
+                                                          6 
+                             Department Store - Stand Alone 
+                                                          3 
+                                                 Distillery 
+                                                          1 
+                                            Docks & Wharves 
+                                                         94 
+                                        Drive-In Restaurant 
+                                                          7 
+                                          Drive-In Theatres 
+                                                          1 
+            Duplex, Non-Strata Side by Side or Front / Back 
+                                                       4626 
+                               Duplex, Non-Strata Up / Down 
+                                                        137 
+                                Duplex, Strata Front / Back 
+                                                       4192 
+                                Duplex, Strata Side by Side 
+                                                       9754 
+                                   Duplex, Strata Up / Down 
+                                                        173 
+                 Electrical & Electronics Products Industry 
+                                                          3 
+            Electrical Power Systems (Including Non-Utility 
+                                                        381 
+                                      Fast Food Restaurants 
+                                                        136 
+                                         Feed Manufacturing 
+                                                          1 
+                                         Fiberoptic Conduit 
+                                                        121 
+                    Flour Mills & Breakfast Cereal Products 
+                                                          1 
+                                                Food Market 
+                                                         48 
+                                                   Fourplex 
+                                                         55 
+                                          Fruit & Vegetable 
+                                                          2 
+                              Furniture & Fixtures Industry 
+                                                         10 
+         Garbage Dumps, Sanitary Fills, Sewer Lagoons, Etc. 
+                                                         93 
+                                   Gas Distribution Systems 
+                                                        119 
+                   Golf Courses (Includes Public & Private) 
+                                                         68 
+     Government Buildings (Includes Courthouse, Post Office 
+                                                        244 
+          Government Research Centres (Includes Nurseries & 
+                                                         20 
+      Government Reserves (Includes Greenbelts (Not In Farm 
+                                                        102 
+                                             Grain & Forage 
+                                                        611 
+                                    Grain & Forage (Vacant) 
+                                                         85 
+                                            Grain Elevators 
+                                                         11 
+                 Greenhouses And Nurseries (Not Farm Class) 
+                                                         12 
+                        Hall (Community, Lodge, Club, Etc.) 
+                                                        160 
+     Hospitals (Nursing Homes Refer To Commercial Section). 
+                                                         37 
+                                                      Hotel 
+                                                        125 
+                                  IC&I Water Lot (Improved) 
+                                                        175 
+                                    IC&I Water Lot (Vacant) 
+                                                        358 
+                        Individual Strata Lot (Hotel/Motel) 
+                                                       3650 
+                                        Industrial (Vacant) 
+                                                       1454 
+                                         Irrigation Systems 
+                                                         11 
+                      Land Classified Recreational Used For 
+                                                         16 
+                                           Leather Industry 
+                                                          2 
+                                  Liquid Gas Storage Plants 
+                                                          4 
+                       Logging Operations, Incl Log Storage 
+                                                        151 
+        Lumber Remanufacturing (When Separate From Sawmill) 
+                                                         20 
+                           Lumber Yard Or Building Supplies 
+                                                         34 
+             Machinery Manufacturing (Excluding Electrical) 
+                                                          8 
+          Manufactured Home (Not In Manufactured Home Park) 
+                                                        806 
+          Manufactured Home (Within Manufactured Home Park) 
+                                                       3452 
+                                     Manufactured Home Park 
+                                                         69 
+           Marine & Navigational Facilities (Includes Ferry 
+                                                         31 
+                                 Marine Facilities (Marina) 
+                                                        232 
+                                             Meat & Poultry 
+                                                         10 
+                               Metal Fabricating Industries 
+                                                         28 
+                                              Mining (Coal) 
+                                                          1 
+         Mining & Milling Non-Metallic (Including Asbestos, 
+                                                          1 
+                            Miscellaneous (Food Processing) 
+                                                         16 
+                 Miscellaneous (Forest And Allied Industry) 
+                                                         34 
+               Miscellaneous (Mining And Allied Industries) 
+                                                          7 
+                         Miscellaneous (Petroleum Industry) 
+                                                          2 
+             Miscellaneous (Transportation & Communication) 
+                                                         60 
+                         Miscellaneous & (Industrial Other) 
+                                                        109 
+                                                      Mixed 
+                                                        641 
+                                             Mixed (Vacant) 
+                                                         38 
+                                         Motel & Auto Court 
+                                                         20 
+                             Multi-Family (Apartment Block) 
+                                                       3000 
+                                  Multi-Family (Conversion) 
+                                                       2191 
+              Multi-Family (Garden Apartment & Row Housing) 
+                                                        444 
+                                   Multi-Family (High-Rise) 
+                                                        546 
+                          Multi-Family (Minimal Commercial) 
+                                                        423 
+                           Multi-Family (Residential Hotel) 
+                                                        150 
+                                      Multi-Family (Vacant) 
+                                                        697 
+                                          Neighbourhood Pub 
+                                                         70 
+                                        Neighbourhood Store 
+                                                         15 
+                              Office Building (Primary Use) 
+                                                       1652 
+                    Oil & Gas Pumping & Compressor Stations 
+                                                          4 
+                         Oil & Gas Transportation Pipelines 
+                                                         31 
+                                        Oil Refining Plants 
+                                                         19 
+                                                      Other 
+                                                       1102 
+                                             Other (Vacant) 
+                                                         77 
+     Paper Box, Paper Bag, And Other Paper Remanufacturing. 
+                                                          3 
+                    Parking (Lot Only, Paved Or Gravel-Com) 
+                                                        477 
+                    Parking (Lot Only, Paved Or Gravel-Res) 
+                                                         24 
+                                             Parking Garage 
+                                                         68 
+                         Parking Lot Only (Paved Or Gravel) 
+                                                        131 
+                                     Parks & Playing Fields 
+                                                       4178 
+                                      Petroleum Bulk Plants 
+                                                          7 
+                  Planer Mills (When Separate From Sawmill) 
+                                                          3 
+                                              Plywood Mills 
+                                                          4 
+                                                    Poultry 
+                                                        136 
+              Primary Metal Industries (Iron & Steel Mills, 
+                                                          5 
+                             Printing & Publishing Industry 
+                                                         17 
+                                       Production Pipelines 
+                                                          1 
+                          Property Subject To Section 19(8) 
+                                                       4384 
+Pulp & Paper Mills (Incl Fine Paper, Tissue & Asphalt Roof) 
+                                                          1 
+                                                    Railway 
+                                                        555 
+                                             Ranger Station 
+                                                          1 
+        Recreational & Cultural Buildings (Includes Curling 
+                                                        393 
+                              Recreational Clubs, Ski Hills 
+                                                        770 
+                            Residential Dwelling with Suite 
+                                                     120963 
+                               Residential Outbuilding Only 
+                                                        861 
+                                            Restaurant Only 
+                                                        349 
+                                               Retail Strip 
+                                                        244 
+                        Row Housing (Single Unit Ownership) 
+                                                     121751 
+                                 Rubber & Plastics Products 
+                                                          4 
+                        Sand & Gravel (Vacant and Improved) 
+                                                         35 
+                                                   Sawmills 
+                                                         29 
+       Schools & Universities, College Or Technical Schools 
+                                                        855 
+                                                   Sea Food 
+                                                         18 
+                                          Seasonal Dwelling 
+                                                        452 
+                                               Self Storage 
+                                                        104 
+                                 Self-Serve Service Station 
+                                                         43 
+                      Seniors Independent & Assisted Living 
+                                                         97 
+                                      Seniors Licensed Care 
+                                                        109 
+      Seniors Strata - Care, Independent or Assisted Living 
+                                                       1208 
+                                            Service Station 
+                                                         99 
+                                              Shingle Mills 
+                                                         15 
+                                                  Shipyards 
+                                                         12 
+                                Shopping Centre (Community) 
+                                                         93 
+                            Shopping Centre (Neighbourhood) 
+                                                        118 
+                                 Shopping Centre (Regional) 
+                                                         35 
+                                     Sign Or Billboard Only 
+                                                         19 
+                                     Single Family Dwelling 
+                                                     250514 
+                                               Small Fruits 
+                                                        943 
+                                      Small fruits (Vacant) 
+                                                        269 
+                                        Soft Drink Bottling 
+                                                          1 
+                             Storage & Warehousing (Closed) 
+                                                       4748 
+                               Storage & Warehousing (Cold) 
+                                                         48 
+                               Storage & Warehousing (Open) 
+                                                        118 
+                               Store(S) And Living Quarters 
+                                                       1164 
+                                       Store(S) And Offices 
+                                                       1150 
+                            Store(S) And Service Commercial 
+                                                       2390 
+                      Stores And/Or Offices With Apartments 
+                                                        198 
+                            Strata Lot (Parking Commercial) 
+                                                        386 
+                           Strata Lot (Parking Residential) 
+                                                        435 
+                         Strata-Lot Residence (Condominium) 
+                                                     305207 
+                       Strata-Lot Self Storage-Business Use 
+                                                          4 
+                      Stratified Operational Facility Areas 
+                                                        595 
+           Stratified Rental Apartment (Frame Construction) 
+                                                       6058 
+         Stratified Rental Apartment (Hi-Rise Construction) 
+                                                       3432 
+                                Stratified Rental Townhouse 
+                                                        575 
+                  Telecommunications (Other Than Telephone) 
+                                                        115 
+                                                  Telephone 
+                                                        111 
+                                  Textiles & Knitting Mills 
+                                                          1 
+                                          Theatre Buildings 
+                                                         29 
+     Transportation Equipment Industry (Including Aircraft, 
+                                                         20 
+                                                Tree Fruits 
+                                                         27 
+                                       Tree Fruits (Vacant) 
+                                                          2 
+                                                    Triplex 
+                                                        139 
+                                                Vacant IC&I 
+                                                       1047 
+                       Vacant Residential Less Than 2 Acres 
+                                                       8852 
+                                          Vegetable & Truck 
+                                                        438 
+                                 Vegetable & Truck (Vacant) 
+                                                        138 
+                                 Water Distribution Systems 
+                                                        319 
+                                                     Winery 
+                                                          2 
+                                                Works Yards 
+                                                        133 
+> # not done, compare to condo useful df <- df[ACTUAL_USE_DESCRIPTION %in% c("Single Family Dwelling","Residential Dwelling with Suite","Strata-Lot Residence (Condominium)")]
+> df[,singleFamily := ACTUAL_USE_DESCRIPTION %in% c("Single Family Dwelling","Residential Dwelling with Suite")]
 > 
 > fwrite(df,"data/derived/descriptions.csv")
 > 
 > proc.time()
    user  system elapsed 
-  2.782   0.134   2.915 
+  5.911   1.795   1.948 

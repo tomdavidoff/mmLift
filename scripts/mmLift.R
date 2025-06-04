@@ -11,10 +11,15 @@ ds <- fread("data/derived/sales.csv")
 dd <- fread("data/derived/descriptions.csv")
 da <- fread("data/derived/assessments.csv")
 dc <- fread("data/derived/folioCentroids.csv")
+di <- fread("data/derived/inventory2024.csv")
+dz <- fread("data/derived/inferZoning.csv")
 
 df <- merge(ds,dd,by="FOLIO_ID")
 df <- merge(df,da,by="FOLIO_ID")
 df <- merge(df,dc,by="FOLIO_ID")
+print(names(df))
+df <- merge(df,di,by.x=c("JURISDICTION_CODE","ROLL_NUMBER"),by.y=c("Jurisdiction","Roll_Number"),all.x=FALSE)
+df <- merge(df,dz,by.x=c("JURISDICTION_CODE","Zoning"),by.y=c("jurisdiction","zoning"))
 
 # find distance to transit
 dt <- fread("data/derived/todList.csv")
@@ -22,13 +27,13 @@ print(summary(dt))
 df[,maxFSR:=0]
 df[,nearest:="none"]
 df[,mindist:=1000000]
-print(table(dt[,get("Type of Transit Station")]))
+print(table(dt[,get("Transit Type")]))
 for (i in 1:nrow(dt)) {
 	df[,disti:=distGeo(cbind(lon,lat),c(dt[i,Longitude],dt[i,Latitude]))]
-	if (dt[i,`Type of Transit Station`]=="passenger rail station") {
+	if (dt[i,`Transit Type`]=="passenger rail station") {
 		df[,maxi:=ifelse(disti<200,5,ifelse(disti<400,4,ifelse(disti<800,3,0)))]
 	}
-	if (dt[i,`Type of Transit Station`]=="bus exchange") {
+	if (dt[i,`Transit Type`]=="bus exchange") {
 		df[,maxi:=ifelse(disti<200,4,ifelse(disti<400,3,0))]
 	}
 	df[,nearest:=ifelse(maxi>maxFSR,dt[i,`Station Name`],nearest)]
@@ -37,10 +42,10 @@ for (i in 1:nrow(dt)) {
 }	
 print(summary(df[,maxFSR]))
 
-print(df[1:20])
-print(summary(df))
+print(df[maxFSR>0 & JURISDICTION_CODE!=200,.(FOLIO_ID,nearest)]) # note: these make sense
+
+
 df[,structureShare:=(GEN_NET_IMPROVEMENT_VALUE/(GEN_NET_IMPROVEMENT_VALUE+GEN_NET_LAND_VALUE))]
-print(summary(df[,structureShare]))
 df[,teardown:=structureShare<0.05] # per merge natural value
 df[,assessedValue:=(GEN_NET_IMPROVEMENT_VALUE+GEN_NET_LAND_VALUE)]
 tearDown <- data.table(yearmon=date(),coef=numeric())
@@ -61,26 +66,10 @@ print(tearDown)
 df[is.na(LAND_SIZE),LAND_SIZE:=LAND_WIDTH*LAND_DEPTH]
 df[,smallLot:=LAND_WIDTH<30 | LAND_DEPTH<100]
 
-# find tear-downs?
-di <- fread("data/derived/inventory2025.csv")
-print(nrow(df))
-print(names(df))
-df <- merge(df,di,by.x=c("JURISDICTION_CODE","ROLL_NUMBER"),by.y=c("Jurisdiction","Roll_Number"),all.x=FALSE)
-print(nrow(df))
-print(quantile(df[singleFamily==1 & MB_Year_Built==2024,structureShare],probs=seq(.1,.95,.05)))
-df[,newBuild:=MB_Year_Built==2024]
-print(df[,mean(hasDepth),by=newBuild])
-print(table(df[,singleFamily]))
-print(table(df[,singleFamily]))
-print(table(df[,JURISDICTION]))
-print(table(df[maxFSR>0,JURISDICTION]))
-
-
 df[,post:=1*(CONVEYANCE_DATE >= as.Date("2023-11-23"))]
 df[,donut:=(CONVEYANCE_DATE > as.Date("2023-11-01") & CONVEYANCE_DATE < as.Date("2024-01-01"))]
 print(table(df[,.(singleFamily,maxFSR)]))
 
-# how many df
 df[,hasmax:=max(maxFSR)>0,by=.(JURISDICTION,NEIGHBOURHOOD,yearmon(CONVEYANCE_DATE))]
 df[,transit:=1*(maxFSR>0)]
 print(summary(df[hasmax>0,.N,by=.(JURISDICTION,NEIGHBOURHOOD,yearmon(CONVEYANCE_DATE))]))
@@ -147,7 +136,7 @@ ggplot(data=coefs,aes(x=month,y=coef,color=type)) + geom_line() +
 	geom_vline(xintercept=2023+(11+23/31)/12, linetype="dashed", color="black") 
 ggsave("text/monthCoefficientsTeardownTransit.png",width=10,height=6)
 
-df[,rZone:=substring(Zoning,1,1)=="R" & !is.na(Zoning)]
+df[,rZone:=singleShare>.9]
 
 r1 <- getTimeCoefs(df[singleFamily==1 & teardown==1 & rZone==1])
 r2 <- getTimeCoefs(df[singleFamily==1 & structureShare>.3 & rZone==1])
@@ -161,13 +150,30 @@ ggplot(data=coefs,aes(x=month,y=coef,color=type)) + geom_line() +
 	geom_vline(xintercept=2023+(11+23/31)/12, linetype="dashed", color="black") 
 ggsave("text/monthCoefficientsTeardownR.png",width=10,height=6)
 
-
+# transit vs not
+r1 <- getTimeCoefs(df[singleFamily==1 & transit==1 & REGIONAL_DISTRICT =="Metro Vancouver" ])
+r2 <- getTimeCoefs(df[singleFamily==1 & transit==0 & REGIONAL_DISTRICT =="Metro Vancouver" ])
+r1[,type:="transit"]
+r2[,type:="no transit"]
+coefs <- rbind(r1,r2)
+ggplot(data=coefs,aes(x=month,y=coef,color=type)) + geom_line() + 
+	geom_point() + 
+	labs(title="month coefficients for single family sales transit vs not",x="month",y="coefficient") +
+	scale_color_manual(values=c("transit"="blue","no transit"="red")) + # vertical line at nov 23
+	geom_vline(xintercept=2023+(11+23/31)/12, linetype="dashed", color="black")
+ggsave("text/monthCoefficientsTransitNot.png",width=10,height=6)
 
 # feols reg log price on transit times single indicator times post
+print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0])))
+print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0 & singleFamily==1])))
+print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0 & singleFamily==1 & REGIONAL_DISTRICT =="Metro Vancouver"])))
+print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0 & singleFamily==1 & REGIONAL_DISTRICT =="Metro Vancouver" & JURISDICTION_CODE==200])))
+print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+maxFSR*post|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0 & singleFamily==1 & REGIONAL_DISTRICT =="Metro Vancouver" & JURISDICTION_CODE==200])))
 print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post*singleFamily|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0])))
 print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+post*singleFamily|nearest,data=df[transit==1 & donut==0])))
 print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+post*structureShare|nearest,data=df[transit==1 & singleFamily==1 & donut==0])))
 print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+post*teardown|nearest,data=df[transit==1 & singleFamily==1 & donut==0])))
+print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+post*singleShare|nearest,data=df[transit==0 & singleFamily==1 & donut==0])))
 q("no")
 
 # limit to single family zones

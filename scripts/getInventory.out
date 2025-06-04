@@ -18,137 +18,376 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > # getInventory.R
-> # R code to get 2025 inventory
+> # R code to get 2024 inventory
 > # Tom Davidoff
 > # 05/30/25
 > 
 > library(data.table)
-> dirr <- "~/OneDrive\ -\ UBC/Documents/data/bca/Residential_inventory_202501"
+> dirr <- "~/OneDrive\ -\ UBC/Documents/data/bca/Residential_inventory_202401/"
 > files <- list.files(dirr)
-> goodAreas <- c("08","09","10","11","14","15")
-> goodFiles <- paste0("~/OneDrive\ -\ UBC/Documents/data/bca/Residential_inventory_202501/20250101_A",goodAreas,"_Residential_Inventory_Extract.txt")
+> onlyVancouver <- 0 
+> if (onlyVancouver) {
++ 	goodAreas <- c("08","09","10","11","14","15")
++ 	goodFiles <- paste0("~/OneDrive\ -\ UBC/Documents/data/bca/Residential_inventory_202401/20240101_A",goodAreas,"_Residential_Inventory_Extract.txt")
++ } else {
++ 	goodFiles <- paste0(dirr,files)
++ }
 > print(goodFiles)
-[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A08_Residential_Inventory_Extract.txt"
-[2] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A09_Residential_Inventory_Extract.txt"
-[3] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A10_Residential_Inventory_Extract.txt"
-[4] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A11_Residential_Inventory_Extract.txt"
-[5] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A14_Residential_Inventory_Extract.txt"
-[6] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A15_Residential_Inventory_Extract.txt"
+ [1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA01_Residential_Inventory_Extract.txt"
+ [2] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA04_Residential_Inventory_Extract.txt"
+ [3] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA06_Residential_Inventory_Extract.txt"
+ [4] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA08_Residential_Inventory_Extract.txt"
+ [5] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA09_Residential_Inventory_Extract.txt"
+ [6] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA10_Residential_Inventory_Extract.txt"
+ [7] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA11_Residential_Inventory_Extract.txt"
+ [8] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA14_Residential_Inventory_Extract.txt"
+ [9] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA15_Residential_Inventory_Extract.txt"
+[10] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA17_Residential_Inventory_Extract.txt"
+[11] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA19_Residential_Inventory_Extract.txt"
+[12] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA20_Residential_Inventory_Extract.txt"
+[13] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA21_Residential_Inventory_Extract.txt"
+[14] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA22_Residential_Inventory_Extract.txt"
+[15] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA23_Residential_Inventory_Extract.txt"
+[16] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA24_Residential_Inventory_Extract.txt"
+[17] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA25_Residential_Inventory_Extract.txt"
+[18] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA26_Residential_Inventory_Extract.txt"
+[19] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA27_Residential_Inventory_Extract.txt"
 > outfile <- data.table()
 > for (k in goodFiles) {
 + 	print(k)
-+ 	df <- fread(file=k,select=c("Jurisdiction","Roll_Number","MB_Year_Built","MB_Effective_Year","Zoning"),colClasses=c("Roll_Number"="character"))
++ 	df <- fread(file=k,select=c("Jurisdiction","Roll_Number","MB_Year_Built","MB_Effective_Year","Zoning","MB_Manual_Class"),colClasses=c("Roll_Number"="character"))
 + 	print(summary(df))
 + 	outfile <- rbind(outfile,df)
 + }
-[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A08_Residential_Inventory_Extract.txt"
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA01_Residential_Inventory_Extract.txt"
   Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
- Min.   :221.0   Length:115636      Min.   :   0   Min.   :   0     
- 1st Qu.:316.0   Class :character   1st Qu.:1972   1st Qu.:1980     
- Median :328.0   Mode  :character   Median :1988   Median :1992     
- Mean   :385.8                      Mean   :1987   Mean   :1948     
- 3rd Qu.:390.0                      3rd Qu.:2006   3rd Qu.:2005     
- Max.   :748.0                      Max.   :2024   Max.   :2024     
-                                    NA's   :8861   NA's   :8875     
-    Zoning         
- Length:115636     
- Class :character  
- Mode  :character  
-                   
-                   
-                   
-                   
-[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A09_Residential_Inventory_Extract.txt"
+ Min.   :213.0   Length:146615      Min.   :   0   Min.   :   0     
+ 1st Qu.:302.0   Class :character   1st Qu.:1967   1st Qu.:1976     
+ Median :308.0   Mode  :character   Median :1984   Median :1990     
+ Mean   :351.8                      Mean   :1981   Mean   :1934     
+ 3rd Qu.:332.0                      3rd Qu.:2005   3rd Qu.:2004     
+ Max.   :764.0                      Max.   :2023   Max.   :2023     
+                                    NA's   :6001   NA's   :6393     
+    Zoning          MB_Manual_Class   
+ Length:146615      Length:146615     
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA04_Residential_Inventory_Extract.txt"
   Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
- Min.   :200.0   Length:206381      Min.   :1892   Min.   :   0     
- 1st Qu.:200.0   Class :character   1st Qu.:1980   1st Qu.:1982     
- Median :200.0   Mode  :character   Median :1997   Median :1997     
- Mean   :215.9                      Mean   :1990   Mean   :1945     
- 3rd Qu.:200.0                      3rd Qu.:2010   3rd Qu.:2009     
- Max.   :739.0                      Max.   :2024   Max.   :2024     
-                                    NA's   :673    NA's   :675      
-    Zoning         
- Length:206381     
- Class :character  
- Mode  :character  
-                   
-                   
-                   
-                   
-[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A10_Residential_Inventory_Extract.txt"
+ Min.   :207.0   Length:123345      Min.   :   0   Min.   :   0     
+ 1st Qu.:250.0   Class :character   1st Qu.:1973   1st Qu.:1977     
+ Median :445.0   Mode  :character   Median :1989   Median :1990     
+ Mean   :482.7                      Mean   :1985   Mean   :1906     
+ 3rd Qu.:766.0                      3rd Qu.:2003   3rd Qu.:2001     
+ Max.   :770.0                      Max.   :2023   Max.   :2023     
+                                    NA's   :9573   NA's   :10002    
+    Zoning          MB_Manual_Class   
+ Length:123345      Length:123345     
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA06_Residential_Inventory_Extract.txt"
   Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
- Min.   :220.0   Length:205040      Min.   :1877   Min.   :   0     
- 1st Qu.:225.0   Class :character   1st Qu.:1980   1st Qu.:1981     
- Median :301.0   Mode  :character   Median :1997   Median :1994     
- Mean   :281.1                      Mean   :1995   Mean   :1859     
- 3rd Qu.:305.0                      3rd Qu.:2013   3rd Qu.:2009     
- Max.   :743.0                      Max.   :2024   Max.   :2024     
-                                    NA's   :1880   NA's   :1880     
-    Zoning         
- Length:205040     
- Class :character  
- Mode  :character  
-                   
-                   
-                   
-                   
-[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A11_Residential_Inventory_Extract.txt"
+ Min.   :204.0   Length:69670       Min.   :1890   Min.   :   0     
+ 1st Qu.:330.0   Class :character   1st Qu.:1972   1st Qu.:1976     
+ Median :412.0   Mode  :character   Median :1987   Median :1989     
+ Mean   :488.3                      Mean   :1984   Mean   :1916     
+ 3rd Qu.:771.0                      3rd Qu.:2000   3rd Qu.:1999     
+ Max.   :785.0                      Max.   :2024   Max.   :2023     
+                                    NA's   :7008   NA's   :7306     
+    Zoning          MB_Manual_Class   
+ Length:69670       Length:69670      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA08_Residential_Inventory_Extract.txt"
+  Jurisdiction Roll_Number        MB_Year_Built  MB_Effective_Year
+ Min.   :221   Length:114868      Min.   :   0   Min.   :   0     
+ 1st Qu.:316   Class :character   1st Qu.:1972   1st Qu.:1980     
+ Median :328   Mode  :character   Median :1988   Median :1992     
+ Mean   :386                      Mean   :1983   Mean   :1959     
+ 3rd Qu.:390                      3rd Qu.:2005   3rd Qu.:2005     
+ Max.   :748                      Max.   :2023   Max.   :2023     
+                                  NA's   :8968   NA's   :8997     
+    Zoning          MB_Manual_Class   
+ Length:114868      Length:114868     
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA09_Residential_Inventory_Extract.txt"
   Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
- Min.   :306.0   Length:115520      Min.   :   0   Min.   :   0     
+ Min.   :200.0   Length:204287      Min.   :   0   Min.   :   0     
+ 1st Qu.:200.0   Class :character   1st Qu.:1979   1st Qu.:1982     
+ Median :200.0   Mode  :character   Median :1996   Median :1997     
+ Mean   :215.5                      Mean   :1989   Mean   :1963     
+ 3rd Qu.:200.0                      3rd Qu.:2009   3rd Qu.:2009     
+ Max.   :739.0                      Max.   :2024   Max.   :2023     
+                                    NA's   :672    NA's   :673      
+    Zoning          MB_Manual_Class   
+ Length:204287      Length:204287     
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA10_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
+ Min.   :220.0   Length:198978      Min.   :1877   Min.   :   0     
+ 1st Qu.:225.0   Class :character   1st Qu.:1980   1st Qu.:1982     
+ Median :301.0   Mode  :character   Median :1996   Median :1995     
+ Mean   :280.8                      Mean   :1994   Mean   :1916     
+ 3rd Qu.:305.0                      3rd Qu.:2012   3rd Qu.:2009     
+ Max.   :743.0                      Max.   :2023   Max.   :2023     
+                                    NA's   :1763   NA's   :1766     
+    Zoning          MB_Manual_Class   
+ Length:198978      Length:198978     
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA11_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
+ Min.   :306.0   Length:114503      Min.   :   0   Min.   :   0     
  1st Qu.:306.0   Class :character   1st Qu.:1978   1st Qu.:1980     
- Median :320.0   Mode  :character   Median :1993   Median :1992     
- Mean   :317.7                      Mean   :1993   Mean   :1905     
- 3rd Qu.:320.0                      3rd Qu.:2011   3rd Qu.:2008     
- Max.   :403.0                      Max.   :2024   Max.   :2024     
-                                    NA's   :1469   NA's   :1471     
-    Zoning         
- Length:115520     
- Class :character  
- Mode  :character  
-                   
-                   
-                   
-                   
-[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A14_Residential_Inventory_Extract.txt"
+ Median :320.0   Mode  :character   Median :1992   Median :1992     
+ Mean   :317.4                      Mean   :1992   Mean   :1922     
+ 3rd Qu.:320.0                      3rd Qu.:2010   3rd Qu.:2008     
+ Max.   :403.0                      Max.   :2023   Max.   :2023     
+                                    NA's   :1513   NA's   :1515     
+    Zoning          MB_Manual_Class   
+ Length:114503      Length:114503     
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA14_Residential_Inventory_Extract.txt"
   Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
- Min.   :236.0   Length:172242      Min.   :1900   Min.   :   0     
+ Min.   :236.0   Length:169905      Min.   :1900   Min.   :   0     
  1st Qu.:326.0   Class :character   1st Qu.:1986   1st Qu.:1986     
- Median :326.0   Mode  :character   Median :1999   Median :1997     
- Mean   :321.2                      Mean   :1997   Mean   :1890     
+ Median :326.0   Mode  :character   Median :1998   Median :1996     
+ Mean   :321.2                      Mean   :1997   Mean   :1915     
  3rd Qu.:326.0                      3rd Qu.:2011   3rd Qu.:2009     
- Max.   :736.0                      Max.   :2024   Max.   :2024     
-                                    NA's   :2536   NA's   :2537     
-    Zoning         
- Length:172242     
- Class :character  
- Mode  :character  
-                   
-                   
-                   
-                   
-[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202501/20250101_A15_Residential_Inventory_Extract.txt"
+ Max.   :736.0                      Max.   :2023   Max.   :2023     
+                                    NA's   :2630   NA's   :2632     
+    Zoning          MB_Manual_Class   
+ Length:169905      Length:169905     
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA15_Residential_Inventory_Extract.txt"
   Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
- Min.   :216.0   Length:202395      Min.   :   0   Min.   :   0     
+ Min.   :216.0   Length:198494      Min.   :   0   Min.   :   0     
  1st Qu.:311.0   Class :character   1st Qu.:1980   1st Qu.:1980     
- Median :312.0   Mode  :character   Median :1994   Median :1992     
- Mean   :326.5                      Mean   :1994   Mean   :1816     
- 3rd Qu.:313.0                      3rd Qu.:2009   3rd Qu.:2006     
- Max.   :776.0                      Max.   :2024   Max.   :2024     
-                                    NA's   :7355   NA's   :7373     
-    Zoning         
- Length:202395     
- Class :character  
- Mode  :character  
-                   
-                   
-                   
-                   
+ Median :312.0   Mode  :character   Median :1993   Median :1992     
+ Mean   :326.8                      Mean   :1993   Mean   :1846     
+ 3rd Qu.:313.0                      3rd Qu.:2008   3rd Qu.:2005     
+ Max.   :776.0                      Max.   :2023   Max.   :2023     
+                                    NA's   :6958   NA's   :7022     
+    Zoning          MB_Manual_Class   
+ Length:198494      Length:198494     
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA17_Residential_Inventory_Extract.txt"
+  Jurisdiction Roll_Number        MB_Year_Built   MB_Effective_Year
+ Min.   :210   Length:58584       Min.   :1895    Min.   :   0     
+ 1st Qu.:222   Class :character   1st Qu.:1971    1st Qu.:1975     
+ Median :556   Mode  :character   Median :1986    Median :1990     
+ Mean   :506                      Mean   :1984    Mean   :1813     
+ 3rd Qu.:713                      3rd Qu.:2003    3rd Qu.:2000     
+ Max.   :777                      Max.   :2023    Max.   :2023     
+                                  NA's   :13268   NA's   :13352    
+    Zoning          MB_Manual_Class   
+ Length:58584       Length:58584      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA19_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
+ Min.   :214.0   Length:84167       Min.   :   0   Min.   :   0     
+ 1st Qu.:217.0   Class :character   1st Qu.:1980   1st Qu.:1980     
+ Median :217.0   Mode  :character   Median :1995   Median :1993     
+ Mean   :284.6                      Mean   :1993   Mean   :1744     
+ 3rd Qu.:331.0                      3rd Qu.:2008   3rd Qu.:2005     
+ Max.   :723.0                      Max.   :2024   Max.   :2023     
+                                    NA's   :4946   NA's   :4985     
+    Zoning          MB_Manual_Class   
+ Length:84167       Length:84167      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA20_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built   MB_Effective_Year
+ Min.   :202.0   Length:69778       Min.   :1897    Min.   :   0     
+ 1st Qu.:233.0   Class :character   1st Qu.:1974    1st Qu.:1975     
+ Median :322.0   Mode  :character   Median :1991    Median :1990     
+ Mean   :468.3                      Mean   :1987    Mean   :1790     
+ 3rd Qu.:789.0                      3rd Qu.:2005    3rd Qu.:2003     
+ Max.   :789.0                      Max.   :2023    Max.   :2023     
+                                    NA's   :11417   NA's   :11518    
+    Zoning          MB_Manual_Class   
+ Length:69778       Length:69778      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA21_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built   MB_Effective_Year
+ Min.   :201.0   Length:56080       Min.   :1890    Min.   :   0     
+ 1st Qu.:413.0   Class :character   1st Qu.:1951    1st Qu.:1970     
+ Median :707.0   Mode  :character   Median :1975    Median :1982     
+ Mean   :580.3                      Mean   :1971    Mean   :1970     
+ 3rd Qu.:710.0                      3rd Qu.:1994    3rd Qu.:1996     
+ Max.   :786.0                      Max.   :2023    Max.   :2023     
+                                    NA's   :20432   NA's   :20507    
+    Zoning          MB_Manual_Class   
+ Length:56080       Length:56080      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA22_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built   MB_Effective_Year
+ Min.   :205.0   Length:50547       Min.   :1894    Min.   :   0     
+ 1st Qu.:215.0   Class :character   1st Qu.:1972    1st Qu.:1979     
+ Median :567.0   Mode  :character   Median :1985    Median :1992     
+ Mean   :502.8                      Mean   :1984    Mean   :1973     
+ 3rd Qu.:703.0                      3rd Qu.:2005    3rd Qu.:2005     
+ Max.   :718.0                      Max.   :2023    Max.   :2023     
+                                    NA's   :12140   NA's   :12324    
+    Zoning          MB_Manual_Class   
+ Length:50547       Length:50547      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA23_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
+ Min.   :212.0   Length:59920       Min.   :1900   Min.   :   0     
+ 1st Qu.:212.0   Class :character   1st Qu.:1971   1st Qu.:1977     
+ Median :212.0   Mode  :character   Median :1981   Median :1990     
+ Mean   :375.8                      Mean   :1984   Mean   :1859     
+ 3rd Qu.:540.0                      3rd Qu.:2001   3rd Qu.:2000     
+ Max.   :731.0                      Max.   :2023   Max.   :2023     
+                                    NA's   :6103   NA's   :6138     
+    Zoning          MB_Manual_Class   
+ Length:59920       Length:59920      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA24_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built   MB_Effective_Year
+ Min.   :391.0   Length:40523       Min.   :1873    Min.   :   0     
+ 1st Qu.:727.0   Class :character   1st Qu.:1971    1st Qu.:1976     
+ Median :727.0   Mode  :character   Median :1978    Median :1985     
+ Mean   :674.3                      Mean   :1982    Mean   :1970     
+ 3rd Qu.:727.0                      3rd Qu.:1994    3rd Qu.:1996     
+ Max.   :749.0                      Max.   :2023    Max.   :2023     
+                                    NA's   :11655   NA's   :11656    
+    Zoning          MB_Manual_Class   
+ Length:40523       Length:40523      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA25_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built   MB_Effective_Year
+ Min.   :227.0   Length:36660       Min.   :1900    Min.   :   0     
+ 1st Qu.:329.0   Class :character   1st Qu.:1964    1st Qu.:1974     
+ Median :478.0   Mode  :character   Median :1975    Median :1982     
+ Mean   :517.4                      Mean   :1976    Mean   :1976     
+ 3rd Qu.:787.0                      3rd Qu.:1989    3rd Qu.:1994     
+ Max.   :792.0                      Max.   :2023    Max.   :2023     
+                                    NA's   :11558   NA's   :11563    
+    Zoning          MB_Manual_Class   
+ Length:36660       Length:36660      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA26_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built   MB_Effective_Year
+ Min.   :226.0   Length:69093       Min.   :1905    Min.   :   0     
+ 1st Qu.:226.0   Class :character   1st Qu.:1970    1st Qu.:1975     
+ Median :585.0   Mode  :character   Median :1976    Median :1985     
+ Mean   :511.9                      Mean   :1981    Mean   :1977     
+ 3rd Qu.:757.0                      3rd Qu.:1993    3rd Qu.:1995     
+ Max.   :757.0                      Max.   :2023    Max.   :2023     
+                                    NA's   :24911   NA's   :24932    
+    Zoning          MB_Manual_Class   
+ Length:69093       Length:69093      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
+[1] "~/OneDrive - UBC/Documents/data/bca/Residential_inventory_202401/20240101_AA27_Residential_Inventory_Extract.txt"
+  Jurisdiction   Roll_Number        MB_Year_Built  MB_Effective_Year
+ Min.   :206.0   Length:29234       Min.   :1900   Min.   :   0     
+ 1st Qu.:333.0   Class :character   1st Qu.:1972   1st Qu.:1978     
+ Median :420.0   Mode  :character   Median :1982   Median :1990     
+ Mean   :485.4                      Mean   :1985   Mean   :1989     
+ 3rd Qu.:759.0                      3rd Qu.:2004   3rd Qu.:2005     
+ Max.   :760.0                      Max.   :2023   Max.   :2023     
+                                    NA's   :5926   NA's   :5927     
+    Zoning          MB_Manual_Class   
+ Length:29234       Length:29234      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      
+                                      
 > 
-> fwrite(outfile,"data/derived/inventory2025.csv")
+> fwrite(outfile,"data/derived/inventory2024.csv")
 > 
 > 
 > 
 > 
 > proc.time()
    user  system elapsed 
-  1.428   0.158   2.168 
+  3.807   0.270  15.842 

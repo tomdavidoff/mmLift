@@ -1,6 +1,6 @@
 
-R version 4.5.0 (2025-04-11) -- "How About a Twenty-Six"
-Copyright (C) 2025 The R Foundation for Statistical Computing
+R version 4.4.0 (2024-04-24) -- "Puppy Cup"
+Copyright (C) 2024 The R Foundation for Statistical Computing
 Platform: aarch64-apple-darwin20
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -30,358 +30,12 @@ Type 'q()' to quit R.
 > dd <- fread("data/derived/descriptions.csv")
 > da <- fread("data/derived/assessments.csv")
 > dc <- fread("data/derived/folioCentroids.csv")
+> di <- fread("data/derived/inventory2024.csv")
+> dz <- fread("data/derived/inferZoning.csv")
 > 
 > df <- merge(ds,dd,by="FOLIO_ID")
 > df <- merge(df,da,by="FOLIO_ID")
 > df <- merge(df,dc,by="FOLIO_ID")
-> 
-> # find distance to transit
-> dt <- fread("data/derived/todList.csv")
-> print(summary(dt))
-      Item    Station Name         Longitude         Latitude    
- Min.   : 1   Length:29          Min.   :-123.2   Min.   :49.20  
- 1st Qu.: 8   Class :character   1st Qu.:-123.1   1st Qu.:49.25  
- Median :15   Mode  :character   Median :-123.1   Median :49.26  
- Mean   :15                      Mean   :-123.1   Mean   :49.26  
- 3rd Qu.:22                      3rd Qu.:-123.1   3rd Qu.:49.27  
- Max.   :29                      Max.   :-123.0   Max.   :49.29  
- Type of Transit Station
- Length:29              
- Class :character       
- Mode  :character       
-                        
-                        
-                        
-> df[,maxFSR:=0]
-> df[,nearest:="none"]
-> df[,mindist:=1000000]
-> print(table(dt[,get("Type of Transit Station")]))
-
-          bus exchange passenger rail station 
-                     2                     27 
-> for (i in 1:nrow(dt)) {
-+ 	df[,disti:=distGeo(cbind(lon,lat),c(dt[i,Longitude],dt[i,Latitude]))]
-+ 	if (dt[i,`Type of Transit Station`]=="passenger rail station") {
-+ 		df[,maxi:=ifelse(disti<200,5,ifelse(disti<400,4,ifelse(disti<800,3,0)))]
-+ 	}
-+ 	if (dt[i,`Type of Transit Station`]=="bus exchange") {
-+ 		df[,maxi:=ifelse(disti<200,4,ifelse(disti<400,3,0))]
-+ 	}
-+ 	df[,nearest:=ifelse(maxi>maxFSR,dt[i,`Station Name`],nearest)]
-+ 	df[,mindist:=ifelse(maxi>maxFSR ,disti,mindist)]
-+ 	df[,maxFSR:=pmax(maxFSR,maxi,na.rm=TRUE)]
-+ }	
-> print(summary(df[,maxFSR]))
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- 0.0000  0.0000  0.0000  0.4169  0.0000  5.0000 
-> 
-> print(df[1:20])
-Key: <FOLIO_ID>
-      FOLIO_ID CONVEYANCE_DATE          CONVEYANCE_TYPE_DESCRIPTION
-        <char>          <IDat>                               <char>
- 1: A00000000E      2023-05-18 Improved Single Property Transaction
- 2: A00000000F      2024-04-30 Improved Single Property Transaction
- 3: A00000000U      2023-10-20 Improved Single Property Transaction
- 4: A00000000X      2023-09-05 Improved Single Property Transaction
- 5: A00000002B      2023-10-23 Improved Single Property Transaction
- 6: A00000002P      2024-01-04 Improved Single Property Transaction
- 7: A00000002T      2023-10-04 Improved Single Property Transaction
- 8: A00000002V      2023-06-15 Improved Single Property Transaction
- 9: A00000003A      2024-03-14 Improved Single Property Transaction
-10: A00000003K      2024-03-07 Improved Single Property Transaction
-11: A00000003K      2024-03-07 Improved Single Property Transaction
-12: A000000044      2024-12-27 Improved Single Property Transaction
-13: A00000004D      2024-05-01 Improved Single Property Transaction
-14: A000000052      2024-01-04 Improved Single Property Transaction
-15: A00000008E      2024-07-16 Improved Single Property Transaction
-16: A00000008Y      2023-10-30 Improved Single Property Transaction
-17: A0000000A0      2024-02-07 Improved Single Property Transaction
-18: A0000000A0      2024-02-07 Improved Single Property Transaction
-19: A0000000AT      2024-08-01 Improved Single Property Transaction
-20: A0000000BP      2024-01-23 Improved Single Property Transaction
-      FOLIO_ID CONVEYANCE_DATE          CONVEYANCE_TYPE_DESCRIPTION
-    CONVEYANCE_PRICE          ACTUAL_USE_DESCRIPTION JURISDICTION_CODE
-               <int>                          <char>             <int>
- 1:         11800000          Single Family Dwelling               200
- 2:         17000000          Single Family Dwelling               200
- 3:         11600000          Single Family Dwelling               200
- 4:          8800000          Single Family Dwelling               200
- 5:          4000000          Single Family Dwelling               200
- 6:          4275000          Single Family Dwelling               200
- 7:         14120000          Single Family Dwelling               200
- 8:          9750000          Single Family Dwelling               200
- 9:          3250000          Single Family Dwelling               200
-10:          4285000 Residential Dwelling with Suite               200
-11:          4285000 Residential Dwelling with Suite               200
-12:          3900000          Single Family Dwelling               200
-13:          5070000          Single Family Dwelling               200
-14:          2258888          Single Family Dwelling               200
-15:         43706110          Single Family Dwelling               200
-16:          9000000          Single Family Dwelling               200
-17:          7880000          Single Family Dwelling               200
-18:          7880000          Single Family Dwelling               200
-19:         35750000          Single Family Dwelling               200
-20:          4135000          Single Family Dwelling               200
-    CONVEYANCE_PRICE          ACTUAL_USE_DESCRIPTION JURISDICTION_CODE
-         JURISDICTION     ROLL_NUMBER LAND_WIDTH LAND_SIZE LAND_DEPTH
-               <char>          <char>      <num>     <num>      <num>
- 1: City of Vancouver 001019635070000         NA     0.853         NA
- 2: City of Vancouver 001019635170000         NA     1.354         NA
- 3: City of Vancouver 001019635860000         NA     0.939         NA
- 4: City of Vancouver 001019636070000         NA     1.524         NA
- 5: City of Vancouver 001024636740002         NA  2846.000         NA
- 6: City of Vancouver 001024637820000         NA  4600.000         NA
- 7: City of Vancouver 001025638280000         NA  9834.000         NA
- 8: City of Vancouver 001025638660000         NA  8357.000         NA
- 9: City of Vancouver 001027683460000       61.0        NA      99.00
-10: City of Vancouver 001028655960000         NA  9697.000         NA
-11: City of Vancouver 001028655960000         NA  9697.000         NA
-12: City of Vancouver 001029650810000       55.0        NA     122.63
-13: City of Vancouver 001030683970000       60.9        NA     110.00
-14: City of Vancouver 001032686790000       33.0        NA     105.60
-15: City of Vancouver 001630020040000         NA 29103.000         NA
-16: City of Vancouver 001630022440000       60.0        NA     100.80
-17: City of Vancouver 001630037680000       43.5        NA     132.30
-18: City of Vancouver 001630037680000       43.5        NA     132.30
-19: City of Vancouver 001632019550000         NA     1.113         NA
-20: City of Vancouver 001632022270000       60.0        NA     100.00
-         JURISDICTION     ROLL_NUMBER LAND_WIDTH LAND_SIZE LAND_DEPTH
-    NEIGHBOURHOOD REGIONAL_DISTRICT TENURE_DESCRIPTION singleFamily
-           <char>            <char>             <char>       <lgcl>
- 1:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
- 2:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
- 3:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
- 4:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
- 5:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
- 6:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
- 7:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
- 8:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
- 9:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-10:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-11:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-12:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-13:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-14:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-15:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-16:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-17:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-18:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-19:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-20:    Point Grey   Metro Vancouver      Crown-Granted         TRUE
-    NEIGHBOURHOOD REGIONAL_DISTRICT TENURE_DESCRIPTION singleFamily
-    GEN_NET_IMPROVEMENT_VALUE GEN_NET_LAND_VALUE       lon      lat
-                        <int>              <int>     <num>    <num>
- 1:                    843000           11385000 -123.2214 49.27416
- 2:                    727000           15921000 -123.2222 49.27408
- 3:                    830000            9583000 -123.2212 49.27214
- 4:                    146000            9360000 -123.2215 49.27073
- 5:                    400000            3498000 -123.2086 49.27059
- 6:                   1023000            3818000 -123.2085 49.26928
- 7:                   5792000            7302000 -123.2076 49.27000
- 8:                   2937000            6524000 -123.2076 49.26949
- 9:                     52700            3383000 -123.2028 49.26066
-10:                    426000            3672000 -123.2002 49.26400
-11:                    426000            3672000 -123.2002 49.26400
-12:                    152000            4164000 -123.1976 49.26430
-13:                   1296000            3582000 -123.1974 49.26019
-14:                     38600            2311000 -123.1944 49.25929
-15:                  17413000           20631000 -123.2144 49.27521
-16:                   3055000            5303000 -123.2103 49.27421
-17:                   2174000            5684000 -123.1862 49.27201
-18:                   2174000            5684000 -123.1862 49.27201
-19:                  12272000           23271000 -123.2184 49.27559
-20:                     18100            4278000 -123.2110 49.27396
-    GEN_NET_IMPROVEMENT_VALUE GEN_NET_LAND_VALUE       lon      lat
-    street_number street_name maxFSR nearest mindist    disti  maxi
-           <char>      <char>  <num>  <char>   <num>    <num> <num>
- 1:          4818      FANNIN      0    none   1e+06 7232.214     0
- 2:          1611    DRUMMOND      0    none   1e+06 7294.789     0
- 3:          1750    DRUMMOND      0    none   1e+06 7223.972     0
- 4:          1825    DRUMMOND      0    none   1e+06 7253.022     0
- 5:          1860     SASAMAT      0    none   1e+06 6320.300     0
- 6:          1992     SASAMAT      0    none   1e+06 6324.142     0
- 7:          1928     SASAMAT      0    none   1e+06 6249.357     0
- 8:          1966     SASAMAT      0    none   1e+06 6257.160     0
- 9:          2938   DISCOVERY      0    none   1e+06 6079.713     0
-10:          2588   COURTENAY      0    none   1e+06 5810.138     0
-11:          2598   COURTENAY      0    none   1e+06 5810.138     0
-12:          4132       CROWN      0    none   1e+06 5620.460     0
-13:          2987     CAMOSUN      0    none   1e+06 5718.314     0
-14:          3079       CROWN      0    none   1e+06 5539.506     0
-15:          1450      BLANCA      0    none   1e+06 6723.567     0
-16:          4548      MARINE      0    none   1e+06 6422.074     0
-17:          3732  POINT GREY      0    none   1e+06 4679.347     0
-18:          3728  POINT GREY      0    none   1e+06 4679.347     0
-19:          4773     BELMONT      0    none   1e+06 7017.567     0
-20:          4577     BELMONT      0    none   1e+06 6477.548     0
-    street_number street_name maxFSR nearest mindist    disti  maxi
-> print(summary(df))
-   FOLIO_ID         CONVEYANCE_DATE      CONVEYANCE_TYPE_DESCRIPTION
- Length:85016       Min.   :2023-01-03   Length:85016               
- Class :character   1st Qu.:2023-06-29   Class :character           
- Mode  :character   Median :2023-10-31   Mode  :character           
-                    Mean   :2023-12-12                              
-                    3rd Qu.:2024-06-17                              
-                    Max.   :2024-12-31                              
-                                                                    
- CONVEYANCE_PRICE    ACTUAL_USE_DESCRIPTION JURISDICTION_CODE
- Min.   :        2   Length:85016           Min.   :200.0    
- 1st Qu.:   650000   Class :character       1st Qu.:221.0    
- Median :   925000   Mode  :character       Median :306.0    
- Mean   :  1356396                          Mean   :281.6    
- 3rd Qu.:  1525000                          3rd Qu.:320.0    
- Max.   :145000000                          Max.   :745.0    
- NA's   :29                                                  
- JURISDICTION       ROLL_NUMBER          LAND_WIDTH       LAND_SIZE        
- Length:85016       Length:85016       Min.   : 16.50   Min.   :     0.06  
- Class :character   Class :character   1st Qu.: 33.00   1st Qu.:  4040.00  
- Mode  :character   Mode  :character   Median : 37.75   Median :  6736.00  
-                                       Mean   : 44.77   Mean   :  7159.17  
-                                       3rd Qu.: 50.00   3rd Qu.:  8173.00  
-                                       Max.   :220.00   Max.   :818930.00  
-                                       NA's   :79736    NA's   :64642      
-   LAND_DEPTH     NEIGHBOURHOOD      REGIONAL_DISTRICT  TENURE_DESCRIPTION
- Min.   : 33.04   Length:85016       Length:85016       Length:85016      
- 1st Qu.:112.21   Class :character   Class :character   Class :character  
- Median :122.00   Mode  :character   Mode  :character   Mode  :character  
- Mean   :121.12                                                           
- 3rd Qu.:125.28                                                           
- Max.   :320.00                                                           
- NA's   :79736                                                            
- singleFamily    GEN_NET_IMPROVEMENT_VALUE GEN_NET_LAND_VALUE      lon        
- Mode :logical   Min.   :       0          Min.   :       0   Min.   :-123.4  
- FALSE:62797     1st Qu.:  128000          1st Qu.:  473000   1st Qu.:-123.1  
- TRUE :22219     Median :  198000          Median :  692000   Median :-122.9  
-                 Mean   :  282218          Mean   :  984828   Mean   :-122.9  
-                 3rd Qu.:  291000          3rd Qu.: 1211000   3rd Qu.:-122.8  
-                 Max.   :32253000          Max.   :98893000   Max.   :-122.4  
-                 NA's   :150               NA's   :150                        
-      lat        street_number      street_name            maxFSR      
- Min.   :49.00   Length:85016       Length:85016       Min.   :0.0000  
- 1st Qu.:49.15   Class :character   Class :character   1st Qu.:0.0000  
- Median :49.21   Mode  :character   Mode  :character   Median :0.0000  
- Mean   :49.20                                         Mean   :0.4169  
- 3rd Qu.:49.26                                         3rd Qu.:0.0000  
- Max.   :49.50                                         Max.   :5.0000  
-                                                                       
-   nearest             mindist              disti               maxi        
- Length:85016       Min.   :3.461e+01   Min.   :   35.41   Min.   :0.00000  
- Class :character   1st Qu.:1.000e+06   1st Qu.: 8526.46   1st Qu.:0.00000  
- Mode  :character   Median :1.000e+06   Median :17462.32   Median :0.00000  
-                    Mean   :8.834e+05   Mean   :19485.28   Mean   :0.08535  
-                    3rd Qu.:1.000e+06   3rd Qu.:29015.89   3rd Qu.:0.00000  
-                    Max.   :1.000e+06   Max.   :55366.19   Max.   :5.00000  
-                                                                            
-> df[,structureShare:=(GEN_NET_IMPROVEMENT_VALUE/(GEN_NET_IMPROVEMENT_VALUE+GEN_NET_LAND_VALUE))]
-> print(summary(df[,structureShare]))
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
- 0.0000  0.1525  0.2494  0.2367  0.3031  1.0000     150 
-> df[,teardown:=structureShare<0.05] # per merge natural value
-> df[,assessedValue:=(GEN_NET_IMPROVEMENT_VALUE+GEN_NET_LAND_VALUE)]
-> tearDown <- data.table(yearmon=date(),coef=numeric())
-> 
-> # conjecture about data structure: regular lots have land and depth
-> df[,hasDepth:=(!is.na(LAND_DEPTH) & !is.na(LAND_WIDTH))]
-> print(summary(feols(structureShare ~ hasDepth | paste0(JURISDICTION,NEIGHBOURHOOD),data=df)))
-NOTE: 150 observations removed because of NA values (LHS: 150).
-OLS estimation, Dep. Var.: structureShare
-Observations: 84,866
-Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 438
-Standard-errors: Clustered (paste0(JURISDICTION, NEIGHBOURHOOD)) 
-             Estimate Std. Error t value  Pr(>|t|)    
-hasDepthTRUE -0.08888   0.009593 -9.2654 < 2.2e-16 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-RMSE: 0.109395     Adj. R2: 0.365237
-                 Within R2: 0.019348
-> print(summary(feols(teardown ~ hasDepth | paste0(JURISDICTION,NEIGHBOURHOOD),data=df)))
-NOTE: 150 observations removed because of NA values (LHS: 150).
-OLS estimation, Dep. Var.: teardown
-Observations: 84,866
-Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 438
-Standard-errors: Clustered (paste0(JURISDICTION, NEIGHBOURHOOD)) 
-             Estimate Std. Error t value  Pr(>|t|)    
-hasDepthTRUE 0.297743   0.016361 18.1983 < 2.2e-16 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-RMSE: 0.245289     Adj. R2: 0.244946
-                 Within R2: 0.042181
-> 
-> df[,window3:=CONVEYANCE_DATE >= as.Date("2023-08-01") & CONVEYANCE_DATE <= as.Date("2024-02-01") & yearmon(CONVEYANCE_DATE)!= yearmon("2023-11-01")]
-> 
-> for (m in sort(unique(df[,yearmon(CONVEYANCE_DATE)]))) {
-+ 	print(m)
-+ 	reg <- feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+teardown| JURISDICTION ^ NEIGHBOURHOOD,data=df[yearmon(CONVEYANCE_DATE)==m & hasDepth==1])
-+ 	tearDown <- rbind(tearDown,data.table(yearmon=m,coef=coef(reg)["teardownTRUE"]))
-+ }
-[1] 2023
-[1] 2023.083
-NOTE: 3 observations removed because of NA values (LHS: 1, RHS: 2).
-[1] 2023.167
-NOTE: 1 observation removed because of NA values (LHS: 1).
-[1] 2023.25
-NOTE: 8 observations removed because of NA values (LHS: 7, RHS: 7).
-[1] 2023.333
-NOTE: 3 observations removed because of NA values (LHS: 3).
-[1] 2023.417
-[1] 2023.5
-[1] 2023.583
-NOTE: 5 observations removed because of NA values (RHS: 5).
-[1] 2023.667
-NOTE: 3 observations removed because of NA values (LHS: 3).
-[1] 2023.75
-NOTE: 1 observation removed because of NA values (RHS: 1).
-[1] 2023.833
-[1] 2023.917
-[1] 2024
-[1] 2024.083
-[1] 2024.167
-[1] 2024.25
-[1] 2024.333
-[1] 2024.417
-[1] 2024.5
-[1] 2024.583
-NOTE: 5 observations removed because of NA values (RHS: 5).
-[1] 2024.667
-NOTE: 1 observation removed because of NA values (RHS: 1).
-[1] 2024.75
-[1] 2024.833
-[1] 2024.917
-> print(tearDown)
-             yearmon        coef
-              <char>       <num>
- 1:             2023 -0.03634320
- 2: 2023.08333333333  0.01418794
- 3: 2023.16666666667  0.01103526
- 4:          2023.25 -0.07186167
- 5: 2023.33333333333 -0.03570176
- 6: 2023.41666666667 -0.07878278
- 7:           2023.5 -0.06783633
- 8: 2023.58333333333 -0.13907298
- 9: 2023.66666666667 -0.04611736
-10:          2023.75 -0.05309289
-11: 2023.83333333333 -0.09718299
-12: 2023.91666666667 -0.07817812
-13:             2024 -0.05892471
-14: 2024.08333333333 -0.06156547
-15: 2024.16666666667 -0.03282349
-16:          2024.25 -0.01342324
-17: 2024.33333333333 -0.06266572
-18: 2024.41666666667 -0.05567929
-19:           2024.5 -0.07182695
-20: 2024.58333333333 -0.11286364
-21: 2024.66666666667 -0.11131415
-22:          2024.75 -0.12190896
-23: 2024.83333333333 -0.10048117
-24: 2024.91666666667 -0.04601897
-             yearmon        coef
-> df[is.na(LAND_SIZE),LAND_SIZE:=LAND_WIDTH*LAND_DEPTH]
-> df[,smallLot:=LAND_WIDTH<30 | LAND_DEPTH<100]
-> 
-> # find tear-downs?
-> di <- fread("data/derived/inventory2025.csv")
-> print(nrow(df))
-[1] 85016
 > print(names(df))
  [1] "FOLIO_ID"                    "CONVEYANCE_DATE"            
  [3] "CONVEYANCE_TYPE_DESCRIPTION" "CONVEYANCE_PRICE"           
@@ -393,88 +47,180 @@ NOTE: 1 observation removed because of NA values (RHS: 1).
 [15] "singleFamily"                "GEN_NET_IMPROVEMENT_VALUE"  
 [17] "GEN_NET_LAND_VALUE"          "lon"                        
 [19] "lat"                         "street_number"              
-[21] "street_name"                 "maxFSR"                     
-[23] "nearest"                     "mindist"                    
-[25] "disti"                       "maxi"                       
-[27] "structureShare"              "teardown"                   
-[29] "assessedValue"               "hasDepth"                   
-[31] "window3"                     "smallLot"                   
+[21] "street_name"                
 > df <- merge(df,di,by.x=c("JURISDICTION_CODE","ROLL_NUMBER"),by.y=c("Jurisdiction","Roll_Number"),all.x=FALSE)
-> print(nrow(df))
-[1] 81866
-> print(quantile(df[singleFamily==1 & MB_Year_Built==2024,structureShare],probs=seq(.1,.95,.05)))
-       10%        15%        20%        25%        30%        35%        40% 
-0.01192733 0.01387600 0.01630697 0.01770531 0.01913367 0.02135021 0.02300753 
-       45%        50%        55%        60%        65%        70%        75% 
-0.02427010 0.02638763 0.02780169 0.03217271 0.03657843 0.03985607 0.04335593 
-       80%        85%        90%        95% 
-0.04922450 0.05730648 0.06806761 0.09101276 
-> df[,newBuild:=MB_Year_Built==2024]
-> print(df[,mean(hasDepth),by=newBuild])
-   newBuild        V1
-     <lgcl>     <num>
-1:    FALSE 0.0556616
-2:       NA 0.2988048
-3:     TRUE 0.3585366
-> print(table(df[,singleFamily]))
-
-FALSE  TRUE 
-59661 22205 
-> print(table(df[,singleFamily]))
-
-FALSE  TRUE 
-59661 22205 
-> print(table(df[,JURISDICTION]))
-
-  Bowen Island Municipality             City of Burnaby 
-                         99                        8826 
-          City of Coquitlam               City of Delta 
-                       5668                        2635 
-            City of Langley         City of Maple Ridge 
-                       1468                        3672 
-    City of New Westminster     City of North Vancouver 
-                       2204                        1949 
-       City of Pitt Meadows      City of Port Coquitlam 
-                        661                        1648 
-         City of Port Moody            City of Richmond 
-                       1668                        7043 
-             City of Surrey           City of Vancouver 
-                      16643                       15701 
-         City of White Rock District of North Vancouver 
-                        974                        2612 
- District of West Vancouver        Lower Mainland Rural 
-                       1394                          18 
-        Township of Langley     Tsawwassen First Nation 
-                       6864                           6 
- University Endowment Lands           Village of Anmore 
-                         20                          59 
-        Village of Belcarra        Village of Lions Bay 
-                          8                          26 
-> print(table(df[maxFSR>0,JURISDICTION]))
-
-  City of Burnaby  City of Richmond City of Vancouver 
-              985               223              8103 
+> df <- merge(df,dz,by.x=c("JURISDICTION_CODE","Zoning"),by.y=c("jurisdiction","zoning"))
 > 
+> # find distance to transit
+> dt <- fread("data/derived/todList.csv")
+> print(summary(dt))
+ Station Name         Longitude         Latitude     Transit Type      
+ Length:109         Min.   :-124.1   Min.   :48.42   Length:109        
+ Class :character   1st Qu.:-123.1   1st Qu.:49.19   Class :character  
+ Mode  :character   Median :-123.0   Median :49.24   Mode  :character  
+                    Mean   :-122.7   Mean   :49.32                     
+                    3rd Qu.:-122.8   3rd Qu.:49.27                     
+                    Max.   :-119.3   Max.   :53.89                     
+> df[,maxFSR:=0]
+> df[,nearest:="none"]
+> df[,mindist:=1000000]
+> print(table(dt[,get("Transit Type")]))
+
+              bus exchange     passenger rail station 
+                        36                         68 
+West Coast Express station 
+                         5 
+> for (i in 1:nrow(dt)) {
++ 	df[,disti:=distGeo(cbind(lon,lat),c(dt[i,Longitude],dt[i,Latitude]))]
++ 	if (dt[i,`Transit Type`]=="passenger rail station") {
++ 		df[,maxi:=ifelse(disti<200,5,ifelse(disti<400,4,ifelse(disti<800,3,0)))]
++ 	}
++ 	if (dt[i,`Transit Type`]=="bus exchange") {
++ 		df[,maxi:=ifelse(disti<200,4,ifelse(disti<400,3,0))]
++ 	}
++ 	df[,nearest:=ifelse(maxi>maxFSR,dt[i,`Station Name`],nearest)]
++ 	df[,mindist:=ifelse(maxi>maxFSR ,disti,mindist)]
++ 	df[,maxFSR:=pmax(maxFSR,maxi,na.rm=TRUE)]
++ }	
+> print(summary(df[,maxFSR]))
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.0000  0.0000  0.7562  0.0000  5.0000 
+> 
+> print(df[maxFSR>0 & JURISDICTION_CODE!=200,.(FOLIO_ID,nearest)]) # note: these make sense
+         FOLIO_ID            nearest
+           <char>             <char>
+    1: A0000NWA0L Lansdowne Exchange
+    2: A0000NWA10 Lansdowne Exchange
+    3: A0000NWA16 Lansdowne Exchange
+    4: A0000NWA1G Lansdowne Exchange
+    5: D00001YBA4 Lansdowne Exchange
+   ---                              
+17568: A0000HQW06       VGH Exchange
+17569: A0000HQW0D       VGH Exchange
+17570: A0000HQXE0       VGH Exchange
+17571: A0000HQXET       VGH Exchange
+17572: A0000HQX9A       VGH Exchange
+> 
+> 
+> df[,structureShare:=(GEN_NET_IMPROVEMENT_VALUE/(GEN_NET_IMPROVEMENT_VALUE+GEN_NET_LAND_VALUE))]
+> df[,teardown:=structureShare<0.05] # per merge natural value
+> df[,assessedValue:=(GEN_NET_IMPROVEMENT_VALUE+GEN_NET_LAND_VALUE)]
+> tearDown <- data.table(yearmon=date(),coef=numeric())
+> 
+> # conjecture about data structure: regular lots have land and depth
+> df[,hasDepth:=(!is.na(LAND_DEPTH) & !is.na(LAND_WIDTH))]
+> print(summary(feols(structureShare ~ hasDepth | paste0(JURISDICTION,NEIGHBOURHOOD),data=df)))
+NOTE: 191 observations removed because of NA values (LHS: 191).
+OLS estimation, Dep. Var.: structureShare
+Observations: 118,399
+Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 1,287
+Standard-errors: Clustered (paste0(JURISDICTION, NEIGHBOURHOOD)) 
+              Estimate Std. Error  t value  Pr(>|t|)    
+hasDepthTRUE -0.024819   0.008695 -2.85442 0.0043807 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+RMSE: 0.112283     Adj. R2: 0.693632
+                 Within R2: 0.001779
+> print(summary(feols(teardown ~ hasDepth | paste0(JURISDICTION,NEIGHBOURHOOD),data=df)))
+NOTE: 191 observations removed because of NA values (LHS: 191).
+OLS estimation, Dep. Var.: teardown
+Observations: 118,399
+Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 1,287
+Standard-errors: Clustered (paste0(JURISDICTION, NEIGHBOURHOOD)) 
+             Estimate Std. Error t value  Pr(>|t|)    
+hasDepthTRUE 0.103754   0.020332 5.10297 3.846e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+RMSE: 0.187826     Adj. R2: 0.254622
+                 Within R2: 0.011007
+> 
+> df[,window3:=CONVEYANCE_DATE >= as.Date("2023-08-01") & CONVEYANCE_DATE <= as.Date("2024-02-01") & yearmon(CONVEYANCE_DATE)!= yearmon("2023-11-01")]
+> 
+> for (m in sort(unique(df[,yearmon(CONVEYANCE_DATE)]))) {
++ 	print(m)
++ 	reg <- feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+teardown| JURISDICTION ^ NEIGHBOURHOOD,data=df[yearmon(CONVEYANCE_DATE)==m & hasDepth==1])
++ 	tearDown <- rbind(tearDown,data.table(yearmon=m,coef=coef(reg)["teardownTRUE"]))
++ }
+[1] 2023
+[1] 2023.083
+NOTE: 1 observation removed because of NA values (LHS: 1).
+[1] 2023.167
+[1] 2023.25
+NOTE: 1 observation removed because of NA values (RHS: 1).
+[1] 2023.333
+NOTE: 1 observation removed because of NA values (RHS: 1).
+[1] 2023.417
+[1] 2023.5
+[1] 2023.583
+NOTE: 1 observation removed because of NA values (RHS: 1).
+[1] 2023.667
+[1] 2023.75
+NOTE: 1 observation removed because of NA values (RHS: 1).
+[1] 2023.833
+NOTE: 1 observation removed because of NA values (RHS: 1).
+[1] 2023.917
+[1] 2024
+[1] 2024.083
+[1] 2024.167
+[1] 2024.25
+[1] 2024.333
+NOTE: 1 observation removed because of NA values (RHS: 1).
+[1] 2024.417
+[1] 2024.5
+[1] 2024.583
+[1] 2024.667
+[1] 2024.75
+[1] 2024.833
+[1] 2024.917
+> print(tearDown)
+             yearmon        coef
+              <char>       <num>
+ 1:             2023 -0.04979972
+ 2: 2023.08333333333 -0.07908253
+ 3: 2023.16666666667 -0.04159466
+ 4:          2023.25 -0.03567836
+ 5: 2023.33333333333 -0.03949483
+ 6: 2023.41666666667 -0.04794006
+ 7:           2023.5 -0.03569712
+ 8: 2023.58333333333 -0.03231452
+ 9: 2023.66666666667 -0.02888272
+10:          2023.75 -0.04829635
+11: 2023.83333333333 -0.07729774
+12: 2023.91666666667 -0.06628661
+13:             2024 -0.07035943
+14: 2024.08333333333 -0.06203851
+15: 2024.16666666667 -0.04748731
+16:          2024.25  0.02722880
+17: 2024.33333333333 -0.05629774
+18: 2024.41666666667 -0.04075146
+19:           2024.5 -0.06075401
+20: 2024.58333333333 -0.07467329
+21: 2024.66666666667 -0.12422187
+22:          2024.75 -0.07473680
+23: 2024.83333333333 -0.06484764
+24: 2024.91666666667 -0.05943037
+             yearmon        coef
+> df[is.na(LAND_SIZE),LAND_SIZE:=LAND_WIDTH*LAND_DEPTH]
+> df[,smallLot:=LAND_WIDTH<30 | LAND_DEPTH<100]
 > 
 > df[,post:=1*(CONVEYANCE_DATE >= as.Date("2023-11-23"))]
 > df[,donut:=(CONVEYANCE_DATE > as.Date("2023-11-01") & CONVEYANCE_DATE < as.Date("2024-01-01"))]
 > print(table(df[,.(singleFamily,maxFSR)]))
             maxFSR
 singleFamily     0     3     4     5
-       FALSE 51015  4761  2767  1118
-       TRUE  21540   508   140    17
+       FALSE 32934 11317  8441  3377
+       TRUE  60920  1341   240    20
 > 
-> # how many df
 > df[,hasmax:=max(maxFSR)>0,by=.(JURISDICTION,NEIGHBOURHOOD,yearmon(CONVEYANCE_DATE))]
 > df[,transit:=1*(maxFSR>0)]
 > print(summary(df[hasmax>0,.N,by=.(JURISDICTION,NEIGHBOURHOOD,yearmon(CONVEYANCE_DATE))]))
  JURISDICTION       NEIGHBOURHOOD         yearmon           N         
- Length:528         Length:528         Min.   :2023   Min.   :  1.00  
- Class :character   Class :character   1st Qu.:2023   1st Qu.: 12.00  
- Mode  :character   Mode  :character   Median :2024   Median : 24.00  
-                                       Mean   :2024   Mean   : 32.29  
-                                       3rd Qu.:2024   3rd Qu.: 42.00  
-                                       Max.   :2025   Max.   :373.00  
+ Length:1746        Length:1746        Min.   :2023   Min.   :  1.00  
+ Class :character   Class :character   1st Qu.:2023   1st Qu.:  7.00  
+ Mode  :character   Mode  :character   Median :2024   Median : 14.00  
+                                       Mean   :2024   Mean   : 24.75  
+                                       3rd Qu.:2024   3rd Qu.: 29.00  
+                                       Max.   :2025   Max.   :576.00  
 > 
 > df[,singleFamily:=1*singleFamily]
 > # first just plain month coefficient
@@ -491,9 +237,9 @@ singleFamily     0     3     4     5
 + 	return(coefs)
 + }
 > r1 <- getTimeCoefs(df[singleFamily==1])
-NOTE: 23 observations removed because of NA values (LHS: 2, RHS: 21).
+NOTE: 54 observations removed because of NA values (LHS: 11, RHS: 43).
 > r2 <- getTimeCoefs(df[singleFamily==0])
-NOTE: 35 observations removed because of NA values (LHS: 2, RHS: 33).
+NOTE: 150 observations removed because of NA values (LHS: 2, RHS: 148).
 > r1[,type:="singleFamily"]
 > r2[,type:="condo"]
 > coefs <- rbind(r1,r2)
@@ -505,9 +251,9 @@ NOTE: 35 observations removed because of NA values (LHS: 2, RHS: 33).
 > ggsave("text/monthCoefficients.png",width=10,height=6)
 > 
 > r1 <- getTimeCoefs(df[singleFamily==1 & transit==1])
-NOTE: 1 observation removed because of NA values (RHS: 1).
+NOTE: 3 observations removed because of NA values (RHS: 3).
 > r2 <- getTimeCoefs(df[singleFamily==0 & transit==1])
-NOTE: 3 observations removed because of NA values (LHS: 2, RHS: 1).
+NOTE: 9 observations removed because of NA values (LHS: 2, RHS: 7).
 > r1[,type:="singleFamily"]
 > r2[,type:="condo"]
 > coefs <- rbind(r1,r2)
@@ -520,6 +266,7 @@ NOTE: 3 observations removed because of NA values (LHS: 2, RHS: 1).
 > 
 > r1 <- getTimeCoefs(df[singleFamily==1 & teardown==1])
 > r2 <- getTimeCoefs(df[singleFamily==1 & structureShare>.3])
+NOTE: 4 observations removed because of NA values (LHS: 4).
 > r1[,type:="teardown"]
 > r2[,type:="snazzy"]
 > coefs <- rbind(r1,r2)
@@ -542,10 +289,11 @@ NOTE: 3 observations removed because of NA values (LHS: 2, RHS: 1).
 + 	geom_vline(xintercept=2023+(11+23/31)/12, linetype="dashed", color="black") 
 > ggsave("text/monthCoefficientsTeardownTransit.png",width=10,height=6)
 > 
-> df[,rZone:=substring(Zoning,1,1)=="R" & !is.na(Zoning)]
+> df[,rZone:=singleShare>.9]
 > 
 > r1 <- getTimeCoefs(df[singleFamily==1 & teardown==1 & rZone==1])
 > r2 <- getTimeCoefs(df[singleFamily==1 & structureShare>.3 & rZone==1])
+NOTE: 2 observations removed because of NA values (LHS: 2).
 > r1[,type:="teardown"]
 > r2[,type:="snazzy"]
 > coefs <- rbind(r1,r2)
@@ -556,74 +304,177 @@ NOTE: 3 observations removed because of NA values (LHS: 2, RHS: 1).
 + 	geom_vline(xintercept=2023+(11+23/31)/12, linetype="dashed", color="black") 
 > ggsave("text/monthCoefficientsTeardownR.png",width=10,height=6)
 > 
-> 
+> # transit vs not
+> r1 <- getTimeCoefs(df[singleFamily==1 & transit==1 & REGIONAL_DISTRICT =="Metro Vancouver" ])
+NOTE: 3 observations removed because of NA values (RHS: 3).
+> r2 <- getTimeCoefs(df[singleFamily==1 & transit==0 & REGIONAL_DISTRICT =="Metro Vancouver" ])
+NOTE: 20 observations removed because of NA values (LHS: 2, RHS: 18).
+> r1[,type:="transit"]
+> r2[,type:="no transit"]
+> coefs <- rbind(r1,r2)
+> ggplot(data=coefs,aes(x=month,y=coef,color=type)) + geom_line() + 
++ 	geom_point() + 
++ 	labs(title="month coefficients for single family sales transit vs not",x="month",y="coefficient") +
++ 	scale_color_manual(values=c("transit"="blue","no transit"="red")) + # vertical line at nov 23
++ 	geom_vline(xintercept=2023+(11+23/31)/12, linetype="dashed", color="black")
+> ggsave("text/monthCoefficientsTransitNot.png",width=10,height=6)
 > 
 > # feols reg log price on transit times single indicator times post
-> print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post*singleFamily|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0])))
-NOTE: 54 observations removed because of NA values (LHS: 4, RHS: 50).
+> print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0])))
+NOTE: 197 observations removed because of NA values (LHS: 13, RHS: 184).
 OLS estimation, Dep. Var.: log(CONVEYANCE_PRICE)
-Observations: 76,499
-Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 368
+Observations: 111,061
+Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 1,282
+Standard-errors: Clustered (paste0(JURISDICTION, NEIGHBOURHOOD)) 
+                    Estimate Std. Error   t value  Pr(>|t|)    
+log(assessedValue)  0.903175   0.016612 54.368685 < 2.2e-16 ***
+transit            -0.000411   0.008394 -0.049020   0.96091    
+post                0.035466   0.003111 11.399528 < 2.2e-16 ***
+transit:post        0.000410   0.009786  0.041898   0.96659    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+RMSE: 0.166719     Adj. R2: 0.930284
+                 Within R2: 0.780796
+> print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0 & singleFamily==1])))
+NOTE: 49 observations removed because of NA values (LHS: 11, RHS: 38).
+OLS estimation, Dep. Var.: log(CONVEYANCE_PRICE)
+Observations: 58,730
+Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 1,144
+Standard-errors: Clustered (paste0(JURISDICTION, NEIGHBOURHOOD)) 
+                    Estimate Std. Error   t value  Pr(>|t|)    
+log(assessedValue)  0.809208   0.040776 19.845239 < 2.2e-16 ***
+transit            -0.003903   0.008653 -0.451046   0.65204    
+post                0.033108   0.002431 13.620386 < 2.2e-16 ***
+transit:post        0.014577   0.015763  0.924761   0.35529    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+RMSE: 0.19022     Adj. R2: 0.91482 
+                Within R2: 0.554377
+> print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0 & singleFamily==1 & REGIONAL_DISTRICT =="Metro Vancouver"])))
+NOTE: 21 observations removed because of NA values (LHS: 2, RHS: 19).
+OLS estimation, Dep. Var.: log(CONVEYANCE_PRICE)
+Observations: 20,674
+Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 222
+Standard-errors: Clustered (paste0(JURISDICTION, NEIGHBOURHOOD)) 
+                   Estimate Std. Error   t value  Pr(>|t|)    
+log(assessedValue) 0.920807   0.031332 29.388928 < 2.2e-16 ***
+transit            0.001479   0.008033  0.184093   0.85411    
+post               0.041960   0.004260  9.849519 < 2.2e-16 ***
+transit:post       0.015998   0.016131  0.991767   0.32240    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+RMSE: 0.165964     Adj. R2: 0.840646
+                 Within R2: 0.628225
+> print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0 & singleFamily==1 & REGIONAL_DISTRICT =="Metro Vancouver" & JURISDICTION_CODE==200])))
+NOTE: 3 observations removed because of NA values (LHS: 1, RHS: 2).
+OLS estimation, Dep. Var.: log(CONVEYANCE_PRICE)
+Observations: 3,538
+Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 25
+Standard-errors: Clustered (paste0(JURISDICTION, NEIGHBOURHOOD)) 
+                    Estimate Std. Error   t value   Pr(>|t|)    
+log(assessedValue)  0.980765   0.027639 35.485160  < 2.2e-16 ***
+transit            -0.004690   0.009238 -0.507683 6.1631e-01    
+post                0.050295   0.005446  9.235124 2.2712e-09 ***
+transit:post        0.033409   0.032760  1.019797 3.1800e-01    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+RMSE: 0.117613     Adj. R2: 0.922564
+                 Within R2: 0.829561
+> print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+maxFSR*post|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0 & singleFamily==1 & REGIONAL_DISTRICT =="Metro Vancouver" & JURISDICTION_CODE==200])))
+NOTE: 3 observations removed because of NA values (LHS: 1, RHS: 2).
+OLS estimation, Dep. Var.: log(CONVEYANCE_PRICE)
+Observations: 3,538
+Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 25
+Standard-errors: Clustered (paste0(JURISDICTION, NEIGHBOURHOOD)) 
+                      Estimate Std. Error   t value   Pr(>|t|)    
+log(assessedValue)  0.98094771   0.027612 35.526486  < 2.2e-16 ***
+maxFSR             -0.00000479   0.003486 -0.001375 9.9891e-01    
+post                0.04907510   0.005526  8.879975 4.7418e-09 ***
+maxFSR:post         0.01250126   0.011549  1.082487 2.8979e-01    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+RMSE: 0.117417     Adj. R2: 0.922821
+                 Within R2: 0.830127
+> print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+transit*post*singleFamily|paste0(JURISDICTION,NEIGHBOURHOOD),data=df[donut==0])))
+NOTE: 197 observations removed because of NA values (LHS: 13, RHS: 184).
+OLS estimation, Dep. Var.: log(CONVEYANCE_PRICE)
+Observations: 111,061
+Fixed-effects: paste0(JURISDICTION, NEIGHBOURHOOD): 1,282
 Standard-errors: Clustered (paste0(JURISDICTION, NEIGHBOURHOOD)) 
                            Estimate Std. Error   t value   Pr(>|t|)    
-log(assessedValue)         0.689402   0.053327 12.927912  < 2.2e-16 ***
-transit                   -0.023334   0.023641 -0.986985 3.2430e-01    
-post                       0.047630   0.007230  6.587618 1.5526e-10 ***
-singleFamily               0.105018   0.027543  3.812943 1.6103e-04 ***
-transit:post              -0.043918   0.009691 -4.532035 7.9158e-06 ***
-transit:singleFamily       0.131842   0.041707  3.161166 1.7021e-03 ** 
-post:singleFamily         -0.010714   0.007605 -1.408829 1.5973e-01    
-transit:post:singleFamily  0.084116   0.031628  2.659531 8.1679e-03 ** 
+log(assessedValue)         0.859904   0.022777 37.753496  < 2.2e-16 ***
+transit                   -0.003798   0.009417 -0.403334 6.8677e-01    
+post                       0.032087   0.007555  4.247389 2.3191e-05 ***
+singleFamily               0.111901   0.019309  5.795159 8.5833e-09 ***
+transit:post               0.001783   0.012111  0.147223 8.8298e-01    
+transit:singleFamily       0.017494   0.012881  1.358205 1.7464e-01    
+post:singleFamily          0.002258   0.007755  0.291119 7.7101e-01    
+transit:post:singleFamily  0.015865   0.020013  0.792751 4.2807e-01    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-RMSE: 0.207598     Adj. R2: 0.875197
-                 Within R2: 0.626649
+RMSE: 0.16523     Adj. R2: 0.931522
+                Within R2: 0.784695
 > print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+post*singleFamily|nearest,data=df[transit==1 & donut==0])))
-NOTE: 4 observations removed because of NA values (LHS: 2, RHS: 2).
+NOTE: 12 observations removed because of NA values (LHS: 2, RHS: 10).
 OLS estimation, Dep. Var.: log(CONVEYANCE_PRICE)
-Observations: 8,719
-Fixed-effects: nearest: 29
+Observations: 23,075
+Fixed-effects: nearest: 91
 Standard-errors: Clustered (nearest) 
-                   Estimate Std. Error  t value   Pr(>|t|)    
-log(assessedValue) 0.868896   0.096625 8.992457 9.5056e-10 ***
-post               0.005232   0.007428 0.704401 4.8700e-01    
-singleFamily       0.097784   0.091547 1.068119 2.9459e-01    
-post:singleFamily  0.079848   0.032888 2.427894 2.1867e-02 *  
+                   Estimate Std. Error  t value  Pr(>|t|)    
+log(assessedValue) 0.969324   0.015183 63.84117 < 2.2e-16 ***
+post               0.033607   0.011075  3.03444  0.003150 ** 
+singleFamily       0.040295   0.020919  1.92619  0.057236 .  
+post:singleFamily  0.024078   0.017864  1.34781  0.181104    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-RMSE: 0.165418     Adj. R2: 0.890019
-                 Within R2: 0.863444
+RMSE: 0.108682     Adj. R2: 0.942714
+                 Within R2: 0.90729 
 > print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+post*structureShare|nearest,data=df[transit==1 & singleFamily==1 & donut==0])))
-NOTE: 1 observation removed because of NA values (RHS: 1).
+NOTE: 3 observations removed because of NA values (RHS: 3).
 OLS estimation, Dep. Var.: log(CONVEYANCE_PRICE)
-Observations: 616
-Fixed-effects: nearest: 22
+Observations: 1,498
+Fixed-effects: nearest: 75
 Standard-errors: Clustered (nearest) 
-                    Estimate Std. Error   t value   Pr(>|t|)    
-log(assessedValue)  0.976849   0.049466 19.747792 4.8337e-15 ***
-post                0.077923   0.030766  2.532753 1.9356e-02 *  
-structureShare      0.044096   0.090485  0.487324 6.3108e-01    
-post:structureShare 0.115917   0.092072  1.258975 2.2186e-01    
+                     Estimate Std. Error   t value   Pr(>|t|)    
+log(assessedValue)   0.951204   0.068892 13.807254  < 2.2e-16 ***
+post                 0.064209   0.017134  3.747389 0.00035168 ***
+structureShare       0.156401   0.101882  1.535118 0.12901966    
+post:structureShare -0.015255   0.076310 -0.199905 0.84210351    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-RMSE: 0.136537     Adj. R2: 0.867192
-                 Within R2: 0.710861
+RMSE: 0.146794     Adj. R2: 0.885699
+                 Within R2: 0.652935
 > print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+post*teardown|nearest,data=df[transit==1 & singleFamily==1 & donut==0])))
-NOTE: 1 observation removed because of NA values (RHS: 1).
+NOTE: 3 observations removed because of NA values (RHS: 3).
 OLS estimation, Dep. Var.: log(CONVEYANCE_PRICE)
-Observations: 616
-Fixed-effects: nearest: 22
+Observations: 1,498
+Fixed-effects: nearest: 75
 Standard-errors: Clustered (nearest) 
                     Estimate Std. Error   t value  Pr(>|t|)    
-log(assessedValue)  0.982226   0.035488 27.677829 < 2.2e-16 ***
-post                0.094331   0.038018  2.481239 0.0216366 *  
-teardownTRUE       -0.036776   0.011494 -3.199670 0.0043068 ** 
-post:teardownTRUE  -0.002925   0.019262 -0.151858 0.8807481    
+log(assessedValue)  0.979716   0.043105 22.728540 < 2.2e-16 ***
+post                0.062157   0.015894  3.910663 0.0002023 ***
+teardownTRUE       -0.030398   0.014782 -2.056389 0.0432716 *  
+post:teardownTRUE   0.001592   0.015630  0.101851 0.9191505    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-RMSE: 0.135988     Adj. R2: 0.868257
-                 Within R2: 0.71318 
+RMSE: 0.146951     Adj. R2: 0.885454
+                 Within R2: 0.65219 
+> print(summary(feols(log(CONVEYANCE_PRICE) ~ log(assessedValue)+post*singleShare|nearest,data=df[transit==0 & singleFamily==1 & donut==0])))
+NOTE: 46 observations removed because of NA values (LHS: 11, RHS: 35).
+OLS estimation, Dep. Var.: log(CONVEYANCE_PRICE)
+Observations: 57,232
+Fixed-effects: nearest: 1
+Standard-errors: IID 
+                    Estimate Std. Error    t value  Pr(>|t|)    
+log(assessedValue)  0.950466   0.001338 710.127402 < 2.2e-16 ***
+post                0.030327   0.008847   3.427810 0.0006089 ***
+singleShare        -0.059966   0.007149  -8.388060 < 2.2e-16 ***
+post:singleShare    0.007673   0.009668   0.793683 0.4273835    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+RMSE: 0.207525     Adj. R2: 0.900103
+                 Within R2: 0.90011 
 > q("no")
 > proc.time()
    user  system elapsed 
- 23.735   7.737   8.425 
+ 18.366   0.880  20.765 

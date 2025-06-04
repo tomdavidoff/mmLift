@@ -1,0 +1,108 @@
+
+R version 4.4.0 (2024-04-24) -- "Puppy Cup"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # inferZoning.R
+> # infer zoning from what gets built in minimal window around September, 2023
+> # Tom Davidoff
+> # 06/02/25
+> 
+> library(data.table)
+> d0 <- fread("~/OneDrive\ -\ UBC/Documents/data/bca/REVD18_and_inventory_extracts_CSV_files/residentialInventory.csv",select=c("jurisdiction","roll_number","zoning"))
+> d0[,roll_start:=substring(roll_number,1,(nchar(roll_number)-1))] # 3 in Vancouver but this should be same street address
+> # only keep if last digit in roll end = 0, no matter string length
+> d0 <- d0[substring(roll_number,nchar(roll_number),nchar(roll_number))=="0",]
+> 
+> 
+> df <- fread("data/derived/descriptions.csv",select=c("JURISDICTION_CODE","ROLL_NUMBER","ACTUAL_USE_DESCRIPTION"))
+> print(table(nchar(df[,ROLL_NUMBER])))
+
+     6      7      8      9     10     11     12     13     15 
+ 11686  21593 485063 128295 352350   6288 112556   5701 173440 
+> print(summary(df[JURISDICTION_CODE==200,nchar(ROLL_NUMBER)]))
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+     15      15      15      15      15      15 
+> 
+> di <- fread("data/derived/inventory2024.csv",select=c("Jurisdiction","Roll_Number","MB_Year_Built"))
+> 
+> 
+> d1 <- merge(df,di,by.x=c("JURISDICTION_CODE","ROLL_NUMBER"),by.y=c("Jurisdiction","Roll_Number"),all.x=TRUE)
+> d1[,roll_start:=substring(ROLL_NUMBER,1,(nchar(ROLL_NUMBER)-1))] # 3 in Vancouver but this should be same street address
+> d1 <- unique(d1[,.(JURISDICTION_CODE,roll_start,ACTUAL_USE_DESCRIPTION,MB_Year_Built)])
+> 
+> dz <- merge(d0,d1,by.x=c("jurisdiction","roll_start"),by.y=c("JURISDICTION_CODE","roll_start"),all.x=TRUE)
+> dz[,singleFamily := ACTUAL_USE_DESCRIPTION %in% c("Single Family Dwelling","Residential Dwelling with Suite")]
+> print(table(dz[,jurisdiction]))
+
+  200   201   202   204   205   206   207   208   209   210   211   212   213 
+86505  2421  1151  4483  5540  3636  1117   738  2073  1548   614 23419  4534 
+  214   215   216   217   219   220   221   222   223   224   225   226   227 
+ 5988  3067  9830 13660  3238  8216  5386  8768  7064  6605  3652 16726  5116 
+  228   229   232   233   234   236   250   255   301   302   303   304   305 
+ 2168  1722  3069  8267  6138  3348 18931  1124 39037  3696  5887  3124 15124 
+  306   307   308   309   310   311   312   313   314   315   316   317   318 
+32235  2661 23091  5920   462  3875 16391 25035  9286  7550  2728  6115  1790 
+  319   320   321   322   323   325   326   327   328   329   330   331   332 
+ 1411 20502  1432  3217   817  3386 13567  7496 14561  2858  4323  2687  4271 
+  333   334   335   336   337   338   339   340   341   342   343   344   345 
+  971   582  1148  7213   983  4029  3938   393   609   510   689  1274   376 
+  346   348   349   350   351   352   361   362   363   364   390   391   401 
+  144  1047  3428  1131    54   629   119   514     1  5671  2158   258  2290 
+  402   403   404   405   406   407   408   409   410   411   412   413   414 
+   12   222     3    25     7    21    14    12   340   180  2420  1760    56 
+  415   416   420   426   432   445   446   451   470   476   478   492   501 
+  209   190  4279   881   559  2092     1  1703  2719  2853  1581  2420   270 
+  502   503   504   506   508   512   514   515   516   517   519   520   521 
+  218   468   294   510   218   728   677   244  1065   767   333   255   537 
+  524   525   526   527   528   529   531   532   533   535   536   537   538 
+ 1235   298   398   522   214   329    12  1312   578   501     2   505   438 
+  539   540   541   542   544   545   547   548   549   551   553   555   556 
+ 1048   519   464   107   431   226   272   438   450   349   606  1503  1999 
+  557   558   559   560   561   562   563   564   565   566   567   568   569 
+  396   355  2118   358   246  1146   380   657  2276   230   593   288   425 
+  570   571   572   573   575   577   578   580   583   584   585   588   592 
+ 2988   149   171   358   118   225   522   392   441   348  1025   673    75 
+  631   701   702   703   704   707   709   710   711   712   713   714   715 
+  512  3007  2441  1377  4539  6958  2253  6673  1506  3401  2780  2562  2555 
+  716   717   718   719   722   723   724   726   727   728   729   730   731 
+ 1565  1722  1327   539  3292  1972  2563   646 11480  3462   709   922  1068 
+  732   733   736   739   742   743   744   745   746   747   748   749   750 
+  757  1362    16   414   117   106    14    89  7111  3619  1246   817   497 
+  752   754   755   756   757   759   760   761   762   763   764   765   766 
+  388  1985  2649  4216  8242  2953  3330     1  1875   371  7371  6482  1095 
+  768   769   770   771   772   775   776   777   780   784   785   786   787 
+ 6281  6881  2941  7720  3269  1309   435   169    11   142  1383  6977  1162 
+  788   789   792 
+ 5545 11149    56 
+> 
+> dzo <- dz[,.(singleShare=weighted.mean(singleFamily,na.rm=TRUE,weight=MB_Year_Built)),by=c("jurisdiction","zoning")]
+> print(summary(dzo))
+  jurisdiction      zoning           singleShare    
+ Min.   :200.0   Length:6639        Min.   :0.0000  
+ 1st Qu.:308.0   Class :character   1st Qu.:0.0000  
+ Median :426.0   Mode  :character   Median :0.5000  
+ Mean   :487.1                      Mean   :0.4781  
+ 3rd Qu.:727.0                      3rd Qu.:1.0000  
+ Max.   :792.0                      Max.   :1.0000  
+> 
+> fwrite(dzo,"data/derived/inferZoning.csv",row.names=FALSE)
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  6.084   0.227   6.503 
